@@ -27,9 +27,6 @@ def video_upload():
 
 @app.route('/get_video_names',methods = ['GET'])
 def list_of_video_names():
-    # import ipdb;ipdb.set_trace()
-    # import ffmpeg
-    # os.system("ffmpeg -i {0} -f image2 -vf fps=fps=1 output%d.png".format(filename))
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         video_names = os.listdir(app.config['VIDEO_UPLOAD_FOLDER'])
