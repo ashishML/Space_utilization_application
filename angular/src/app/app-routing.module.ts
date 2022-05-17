@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AnnotateComponent } from './annotate/annotate.component';
+import { ResultComponent } from './result/result.component';
 import { UploadComponent } from './upload/upload.component';
 
 const routes: Routes = [
@@ -12,6 +13,10 @@ const routes: Routes = [
   {
     path:'annotate',
     component:AnnotateComponent,
+  },
+  {
+    path:'result',
+    component:ResultComponent,
   },
 ];
 

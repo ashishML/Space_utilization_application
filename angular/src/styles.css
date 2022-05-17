@@ -1,8 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 html, body{
     font-family: 'Source Sans Pro', sans-serif !important;
-    background-color: #F6F9FB;
-    height: 100vh;
+    background-color: #F6F9FB !important;
+}
+.btn:focus{
+    box-shadow: none !important;
 }
 .nextBtn{
     background: linear-gradient(261.47deg, #FF31C5 -2.13%, #5E1F93 100%);

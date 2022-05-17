@@ -9,7 +9,7 @@ export class UploadComponent implements OnInit {
 
   constructor() { }
   fileOver = false;
-  formData: FormData | any;
+  formData!: FormData;
   fileName: string = '';
 
   ngOnInit(): void {
@@ -19,7 +19,7 @@ export class UploadComponent implements OnInit {
     const element = event.currentTarget as HTMLInputElement;
     let fileList: FileList | null = element.files;
     if (fileList) {
-      console.log("FileUpload -> files", fileList[0]);
+      console.log(fileList[0]);
       this.formData = new FormData();
       this.formData.append('file', fileList[0])
       this.fileName = fileList[0].name
@@ -31,23 +31,23 @@ export class UploadComponent implements OnInit {
     event.stopPropagation();
     let fileList: FileList | null = event.dataTransfer.files;
     if (fileList) {
-      console.log("FileUpload -> files", fileList[0]);
+      console.log(fileList[0]);
       this.formData = new FormData();
       this.formData.append('file', fileList[0])
       this.fileName = fileList[0].name
     }
   }
 
-  onDragOver(evt:any) {
+  onDragOver(event:any) {
     this.fileOver = true
-    evt.preventDefault();
-    evt.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
   }
 
-  onDragLeave(evt:any) {
+  onDragLeave(event:any) {
     this.fileOver = false
-    evt.preventDefault();
-    evt.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
   }
 
 }
