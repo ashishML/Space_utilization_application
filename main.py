@@ -1,16 +1,10 @@
 from flask import Flask,jsonify, request, Response, render_template
-from google.cloud import storage
 import numpy as np
+from app import app
 app = Flask(__name__)
 import cv2
 import os
-
-
-IMAGE_FOLDER = os.path.join('static', 'images')
-app.config['IMAGE_UPLOAD_FOLDER'] = IMAGE_FOLDER
-
-VIDEO_FOLDER = os.path.join('static', 'videos')
-app.config['VIDEO_UPLOAD_FOLDER'] = VIDEO_FOLDER
+from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket
 
 
 @app.route('/upload_video',methods = ['POST','GET'])
@@ -23,22 +17,19 @@ def video_upload():
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
         for video in video_file:
-            #upload to gcp
-
-            video.save(os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], video.filename))
+            upload_file_to_bucket(video)
         return jsonify(response_dict)
 
 
-
-@app.route('/get_video_names',methods = ['GET'])
+@app.route('/get_names',methods = ['GET'])
 def list_of_video_names():
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
-        video_names = os.listdir(app.config['VIDEO_UPLOAD_FOLDER'])
-        if video_names:
-            response_dict['data'] =[v.split('.')[0] for v in video_names]
+        result ,succ = get_bucket_file_names()
+        if succ:
+            response_dict['data'] = result
         else:
-            response_dict['status'] = False
+            response_dict['data'] = False
             response_dict['message'] = 'files not available!'
         return jsonify(response_dict)
 
@@ -48,14 +39,13 @@ def video_frame_capture():
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         try:
-            video_name = request.args.get('v_name') #path from gcp
-            video_obj = cv2.VideoCapture(os.path.join(app.config['VIDEO_UPLOAD_FOLDER'],video_name+'.mp4'))
+            video_name = request.args.get('v_name')
+            video_obj = cv2.VideoCapture(read_file_to_bucket(video_name))
             success = 1
-            v_name = video_name.split('.')[0]
             while success:
                 success, image = video_obj.read()
-                cv2.imwrite('./static/images/'+v_name+'.png',image)
-                response_dict['data'] ='/static/images/'+v_name+'.png'
+                cv2.imwrite('./static/images/'+video_name+'.png',image)
+                response_dict['data'] ='/static/images/'+video_name+'.png'
                 break
             return jsonify(response_dict)
         except:
@@ -76,7 +66,7 @@ def gen_frames():
     while True:
         success, frame = camera.read()  # read the camera frame
         frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        vertices = np.array([(140,154),(460,121),(600,369),(25,381)])
+        vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         cropped_frame = region_of_interest(frame, vertices)
 
         if not success:
@@ -97,15 +87,6 @@ def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-
-def upload_to_bucket():
-    storage_client = storage.Client.from_service_account_json('springml-gcp-credentials.json')
-    bucket = storage_client.get_bucket('space_utilization_application')
-    blob_name = "%s/%s"%('','test_video.mp4')
-    blob = bucket.blob(blob_name)
-    with open('video-01.mp4','rb') as f:
-        blob.upload_from_file(f)
-    return blob.public_url
 
 
 
