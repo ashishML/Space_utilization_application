@@ -13,13 +13,13 @@ CORS(app)
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
     if request.method == 'POST':
-        video_file = request.files.getlist("file")
+        video_file = request.files
         if not video_file:
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in video_file:
-            upload_file_to_bucket(video)
+        for video in range(len(video_file)):
+            upload_file_to_bucket(request.files[str(video)])
         return jsonify(response_dict)
 
 
@@ -96,8 +96,7 @@ def video_feed():
 
 
 
-
-
 if __name__ == '__main__':
+    CORS(app)
     app.run(host='127.0.0.1', port=8080, debug = True)
 

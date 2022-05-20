@@ -19,10 +19,14 @@ def upload_file_to_bucket(file):
 def get_bucket_file_names():
     result = []
     succ = True
+    count = 0
     for blob in client.list_blobs(app.config['BUCKET_NAME']):
             if blob.name.split('/')[1] == '':
                 continue
-            result.append( blob.name.split('/')[1].split('.')[0])
+            result.append(blob.name.split('/')[1].split('.')[0])
+            count+=1
+            if count ==2:
+                break
     if not result:
         succ = False
     return result,succ
