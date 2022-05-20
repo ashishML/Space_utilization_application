@@ -42,13 +42,16 @@ def video_frame_capture():
     if request.method == 'GET':
         try:
             video_name = request.args.get('v_name')
-            video_obj = cv2.VideoCapture(read_file_to_bucket(video_name))
-            success = 1
-            while success:
-                success, image = video_obj.read()
-                cv2.imwrite('./static/images/'+video_name+'.png',image)
-                response_dict['data'] ='/static/images/'+video_name+'.png'
-                break
+            result = []
+            for frame in eval(video_name):
+                video_obj = cv2.VideoCapture(read_file_to_bucket(frame))
+                success = 1
+                while success:
+                    success, image = video_obj.read()
+                    cv2.imwrite('./static/images/'+frame+'.png',image)
+                    result.append('/static/images/'+frame+'.png')
+                    response_dict['data'] = result
+                    break
             return jsonify(response_dict)
         except:
             response_dict['status'] = False
