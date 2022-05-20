@@ -12,13 +12,13 @@ from flask_cors import CORS
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
     if request.method == 'POST':
-        video_file = request.files.getlist("file")
+        video_file = request.files
         if not video_file:
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in video_file:
-            upload_file_to_bucket(video)
+        for video in range(len(video_file)):
+            upload_file_to_bucket(request.files[str(video)])
         return jsonify(response_dict)
 
 
@@ -86,8 +86,6 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
 
 
 
