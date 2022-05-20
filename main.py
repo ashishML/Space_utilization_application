@@ -5,7 +5,9 @@ app = Flask(__name__)
 import cv2
 import os
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket
+from flask_cors import CORS
 
+CORS(app)
 
 @app.route('/upload_video',methods = ['POST','GET'])
 def video_upload():

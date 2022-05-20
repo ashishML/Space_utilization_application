@@ -7,18 +7,22 @@ import { HeaderComponent } from './header/header.component';
 import { UploadComponent } from './upload/upload.component';
 import { AnnotateComponent } from './annotate/annotate.component';
 import { ResultComponent } from './result/result.component';
-
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     UploadComponent,
     AnnotateComponent,
-    ResultComponent
+    ResultComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

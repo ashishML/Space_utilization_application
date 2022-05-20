@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-upload',
@@ -7,47 +8,47 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UploadComponent implements OnInit {
 
-  constructor() { }
-  fileOver = false;
-  formData!: FormData;
-  fileName: string = '';
+  constructor(private service: ApiService) { }
+  fileName: any = [];
+  formData = new FormData();
 
   ngOnInit(): void {
   }
   
-  uploadFile(event: Event) {
-    const element = event.currentTarget as HTMLInputElement;
-    let fileList: FileList | null = element.files;
-    if (fileList) {
-      console.log(fileList[0]);
-      this.formData = new FormData();
-      this.formData.append('file', fileList[0])
-      this.fileName = fileList[0].name
+  uploadFile(event: any) {
+    this.fileName = [];  
+    const files: FileList  = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      this.formData.append("file[]", files[i]);
+      this.fileName.push(files[i].name);
     }
+    
   }
 
   onDrop(event: any) {
     event.preventDefault();
     event.stopPropagation();
-    let fileList: FileList | null = event.dataTransfer.files;
-    if (fileList) {
-      console.log(fileList[0]);
-      this.formData = new FormData();
-      this.formData.append('file', fileList[0])
-      this.fileName = fileList[0].name
+    this.fileName = [];
+    const files: FileList = event.dataTransfer.files;
+    for (let i = 0; i < files.length; i++) {
+      this.formData.append("file[]", files[i]);
+      this.fileName.push(files[i].name);
     }
   }
 
   onDragOver(event:any) {
-    this.fileOver = true
     event.preventDefault();
     event.stopPropagation();
   }
 
   onDragLeave(event:any) {
-    this.fileOver = false
     event.preventDefault();
     event.stopPropagation();
   }
 
+  submitVideo(){    
+    this.service.uploadVideo(this.formData).subscribe(
+      res => { console.log(res)},
+    )
+  }
 }
