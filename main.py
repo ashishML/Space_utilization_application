@@ -5,6 +5,7 @@ app = Flask(__name__)
 import cv2
 import os
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket
+from flask_cors import CORS
 
 
 @app.route('/upload_video',methods = ['POST','GET'])
@@ -97,5 +98,6 @@ def video_feed():
 
 
 if __name__ == '__main__':
+    CORS(app)
     app.run(host='127.0.0.1', port=8080, debug = True)
 
