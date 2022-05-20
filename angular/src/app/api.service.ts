@@ -13,4 +13,12 @@ export class ApiService {
   uploadVideo(payload:any){
     return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
   }
+
+  getNames(payload:any){
+    return this.http.get(`${this.API_ENDPOINT}/get_names`, payload)
+  }
+
+  getFrames(){
+    return this.http.get(`${this.API_ENDPOINT}/get_frame`)
+  }
 }

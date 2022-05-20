@@ -17,7 +17,11 @@
     </div>
     <div class="row mt-4">
         <div class="col-12 text-center">
-            <button class="btn nextBtn" (click)="submitVideo()">NEXT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+            <button class="btn nextBtn" *ngIf="!loading" (click)="submitVideo()">NEXT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+            <button class="btn nextBtn" disabled *ngIf="loading">
+                Loading...
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
         </div>
     </div>
 </div>

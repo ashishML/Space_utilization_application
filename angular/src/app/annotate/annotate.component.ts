@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-annotate',
@@ -7,10 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AnnotateComponent implements OnInit {
 
-  constructor() { }
+  constructor(private service: ApiService) {
+  }
+  ishow = true
 
   ngOnInit(): void {
+    this.service.getFrames().subscribe(res => {
+      console.log(res);
+      
+    })
+
+    setTimeout(() => {
+      this.ishow = false
+    }, 3000);
   }
+
+  getImage:any
   context: any = [];
   current_image_loaded: any = [];
   img_index: any;

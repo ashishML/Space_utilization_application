@@ -2,19 +2,16 @@
     <div class="row ">
         <div class="col-6">
             <div class="card shadow border-0 mt-5 p-3">
-                <div class="card-body border-secondary text-center" style="border-style: dashed;">
+                <div class="card-body border-secondary text-center">
                     <img src="../../assets/upload.svg" alt="" >
                 </div>
             </div>
         </div>
         <div class="col-6">
-            <div class="card shadow border-0 mt-5 p-3">
-                <div style="width: 0;height: 0;overflow: hidden;">
-                    <img #img src="../../assets/File-Upload-with-Progress-Bar-HTML-CSS-JavaScript-324x235.jpg" (load)="afterLoading()" alt="Loading"/>
+            <div class="card shadow border-0 mt-5 ">
+                <div class="card-body placeholder-wave" [ngClass]="{'placeholder' : ishow}" [style.height]="ishow ? '200px' : null" >
+                    <img src="../../assets/upload.svg" alt="" >
                 </div>
-                <canvas #region_canvas tabindex="1" (click)="highlight()" (mousedown)="onMouseDown($event)" (touchstart)="onMouseDown($event)" (touchmove)="onMouseMove($event)"
-                    (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp($event)" (mouseover)="onMouseOver($event)" >
-                </canvas>  
             </div>
         </div>
     </div>

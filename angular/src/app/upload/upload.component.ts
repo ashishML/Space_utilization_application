@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 
 @Component({
@@ -8,10 +10,10 @@ import { ApiService } from '../api.service';
 })
 export class UploadComponent implements OnInit {
 
-  constructor(private service: ApiService) { }
+  constructor(private service: ApiService, private router: Router, private toastr: ToastrService) { }
   fileName: any = [];
   formData = new FormData();
-
+  loading = false;
   ngOnInit(): void {
   }
   
@@ -19,10 +21,9 @@ export class UploadComponent implements OnInit {
     this.fileName = [];  
     const files: FileList  = event.target.files;
     for (let i = 0; i < files.length; i++) {
-      this.formData.append("file[]", files[i]);
+      this.formData.append(i.toString(), files[i]);
       this.fileName.push(files[i].name);
     }
-    
   }
 
   onDrop(event: any) {
@@ -31,7 +32,7 @@ export class UploadComponent implements OnInit {
     this.fileName = [];
     const files: FileList = event.dataTransfer.files;
     for (let i = 0; i < files.length; i++) {
-      this.formData.append("file[]", files[i]);
+      this.formData.append(i.toString(), files[i]);
       this.fileName.push(files[i].name);
     }
   }
@@ -46,9 +47,28 @@ export class UploadComponent implements OnInit {
     event.stopPropagation();
   }
 
-  submitVideo(){    
+  submitVideo(){
+    this.loading = true;
     this.service.uploadVideo(this.formData).subscribe(
-      res => { console.log(res)},
-    )
+        (res:any) => { 
+          if(res.status){
+            console.log(res);
+            this.service.getNames(this.fileName).subscribe(res => {
+              console.log(res);
+              this.loading = false;
+              this.router.navigate(['../annotate']);
+            })
+          }
+          else{
+            this.toastr.error('File Error', 'No file uploaded');
+            this.loading = false;
+          }
+        },
+        err => {
+          this.toastr.error('Please try again', 'Unable to send');
+          this.loading = false;
+        }
+      )
   }
+  
 }
