@@ -5,8 +5,9 @@ from app import app
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 
 client = storage.Client()
-
+image_count = 0
 def upload_file_to_bucket(file):
+    global image_count
     name = file.filename
     data = file.read()
     remote_path = 'videos' + "/" + name
@@ -14,18 +15,19 @@ def upload_file_to_bucket(file):
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob(remote_path)
     blob.upload_from_string(data, content_type = 'video/mp4', timeout=600)
+    image_count+=1
     return 
 
 def get_bucket_file_names():
+    global image_count
     result = []
     succ = True
-    count = 0
     for blob in client.list_blobs(app.config['BUCKET_NAME']):
             if blob.name.split('/')[1] == '':
                 continue
             result.append(blob.name.split('/')[1].split('.')[0])
-            count+=1
-            if count ==2:
+            image_count -=1
+            if image_count ==0:
                 break
     if not result:
         succ = False
