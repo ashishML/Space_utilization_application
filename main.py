@@ -35,7 +35,7 @@ def video_upload():
             return jsonify(response_dict)
         for video in range(len(video_file)):
             upload_file_to_bucket(request.files[str(video)])
-            v_results.append(video_file.get('file').filename.split('.')[0])
+            v_results.append(video_file.get(str(video)).filename.split('.')[0])
         return jsonify(response_dict)
 
 #have to remove the call
@@ -54,7 +54,6 @@ def list_of_video_names():
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
-    global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         try:
@@ -69,11 +68,12 @@ def video_frame_capture():
                     break
                 result.append(read_image_from_bucket(names))
             response_dict['data'] = result
+            v_results=[]
             return jsonify(response_dict)
         except:
             response_dict['status'] = False
             response_dict['message'] = 'there is no video files!'
-            return jsonify(response_dict)
+    return jsonify(response_dict)
 
 def region_of_interest(img, vertices):
     mask = np.zeros_like(img)
@@ -119,4 +119,3 @@ def video_feed():
 if __name__ == '__main__':
     CORS(app)
     app.run(host='127.0.0.1', port=8080, debug = True)
-

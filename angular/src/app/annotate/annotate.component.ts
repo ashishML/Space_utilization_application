@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ApiService } from '../api.service';
 
 @Component({
@@ -8,19 +9,25 @@ import { ApiService } from '../api.service';
 })
 export class AnnotateComponent implements OnInit {
 
-  constructor(private service: ApiService) {
+  constructor(private service: ApiService, private sanitizer: DomSanitizer) {
   }
-  ishow = true
+  loadingAnimate = true;
+  thumbnail: any;
 
   ngOnInit(): void {
-    this.service.getFrames().subscribe(res => {
+    this.loadingAnimate = true;
+    this.service.getFrames().subscribe((res:any) => {
       console.log(res);
       
+      // this.loadingAnimate = false;
+      // let objectURL = 'data:image/jpeg;base64,' + res['data'];
+      // this.thumbnail = this.sanitizer.bypassSecurityTrustUrl(objectURL);
+      // console.log(this.thumbnail);
+      
     })
-
     setTimeout(() => {
-      this.ishow = false
-    }, 3000);
+      this.loadingAnimate = false;
+    }, 2000);
   }
 
   getImage:any
