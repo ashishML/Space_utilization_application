@@ -19,14 +19,10 @@ def upload_file_to_bucket(file):
 def get_bucket_file_names():
     result = []
     succ = True
-    count = 0
-    for blob in client.list_blobs(app.config['BUCKET_NAME']):
-            if blob.name.split('/')[1] == '':
-                continue
-            result.append(blob.name.split('/')[1].split('.')[0])
-            count+=1
-            if count ==2:
-                break
+    for blob in client.list_blobs(app.config['BUCKET_NAME'],prefix='videos/'):
+        if blob.name.split('/')[1] == '':
+            continue
+        result.append(blob.name.split('/')[1].split('.')[0])
     if not result:
         succ = False
     return result,succ
@@ -36,4 +32,32 @@ def read_file_to_bucket(video_name):
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob('videos/'+video_name+'.mp4')
     return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
-    
+
+
+def upload_image_file_to_bucket(img_str,names):
+    remote_path = 'first_frame' + "/" + names
+    storage_client = storage.Client.from_service_account_json('creds.json')
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    blob = bucket.blob(remote_path)
+    blob.upload_from_string(img_str, content_type = 'image/png', timeout=600)
+    return 
+
+def get_image_from_bucket(names):  
+    bucket = client.bucket('my-bucket')
+    blob = bucket.blob('first_frame/'+names+'.png')
+    serving_url = blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
+    return serving_url
+
+
+from base64 import b64encode
+
+def read_image_from_bucket(names):
+
+    bucket = client.get_bucket(app.config['BUCKET_NAME'])
+    blobs = bucket.list_blobs(prefix='first_frame/'+names)
+    for idx, bl in enumerate(blobs):
+        data = bl.download_as_string()
+        b = b64encode(data).decode("utf-8")
+    return b
+
+

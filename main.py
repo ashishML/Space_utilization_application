@@ -3,11 +3,26 @@ import numpy as np
 from app import app
 app = Flask(__name__)
 import cv2
-import os
-from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket
 from flask_cors import CORS
+from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
+                  upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket
 
-CORS(app)
+
+v_results = []
+#for backend
+# @app.route('/upload_video',methods = ['POST','GET'])
+# def video_upload():
+#     response_dict={"status": True, "message": "video saved successfully",'data':{}}
+#     if request.method == 'POST':
+#         video_file = request.files.getlist('file')
+#         if not video_file:
+#             response_dict['status'] = False
+#             response_dict['message'] = 'file not available!'
+#             return jsonify(response_dict)
+#         for video in video_file:
+#             #upload_file_to_bucket(video)
+#             v_results.append(video.filename.split('.')[0])
+#         return jsonify(response_dict)
 
 @app.route('/upload_video',methods = ['POST','GET'])
 def video_upload():
@@ -20,9 +35,10 @@ def video_upload():
             return jsonify(response_dict)
         for video in range(len(video_file)):
             upload_file_to_bucket(request.files[str(video)])
+            v_results.append(video_file.get('file').filename.split('.')[0])
         return jsonify(response_dict)
 
-
+#have to remove the call
 @app.route('/get_names',methods = ['GET'])
 def list_of_video_names():
     response_dict={"status": True, "message": "",'data':{}}
@@ -38,20 +54,21 @@ def list_of_video_names():
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
+    global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         try:
-            video_name = request.args.get('v_name')
             result = []
-            for frame in eval(video_name):
-                video_obj = cv2.VideoCapture(read_file_to_bucket(frame))
+            for names in v_results:
+                video_obj = cv2.VideoCapture(read_file_to_bucket(names))
                 success = 1
                 while success:
                     success, image = video_obj.read()
-                    cv2.imwrite('./static/images/'+frame+'.png',image)
-                    result.append('/static/images/'+frame+'.png')
-                    response_dict['data'] = result
+                    img_str = cv2.imencode('.png', image)[1].tobytes()
+                    upload_image_file_to_bucket(img_str,names)
                     break
+                result.append(read_image_from_bucket(names))
+            response_dict['data'] = result
             return jsonify(response_dict)
         except:
             response_dict['status'] = False
