@@ -12,6 +12,7 @@ v_results = []
 #for backend
 # @app.route('/upload_video',methods = ['POST','GET'])
 # def video_upload():
+#     print(v_results,'**********')
 #     response_dict={"status": True, "message": "video saved successfully",'data':{}}
 #     if request.method == 'POST':
 #         video_file = request.files.getlist('file')
@@ -54,6 +55,7 @@ def list_of_video_names():
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
+    global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         try:
