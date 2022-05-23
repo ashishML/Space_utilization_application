@@ -10,33 +10,33 @@ from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_buc
 
 v_results = []
 #for backend
-@app.route('/upload_video',methods = ['POST','GET'])
-def video_upload():
-    response_dict={"status": True, "message": "video saved successfully",'data':{}}
-    if request.method == 'POST':
-        video_file = request.files.getlist('file')
-        if not video_file:
-            response_dict['status'] = False
-            response_dict['message'] = 'file not available!'
-            return jsonify(response_dict)
-        for video in video_file:
-            #upload_file_to_bucket(video)
-            v_results.append(video.filename.split('.')[0])
-        return jsonify(response_dict)
-
 # @app.route('/upload_video',methods = ['POST','GET'])
 # def video_upload():
 #     response_dict={"status": True, "message": "video saved successfully",'data':{}}
 #     if request.method == 'POST':
-#         video_file = request.files
+#         video_file = request.files.getlist('file')
 #         if not video_file:
 #             response_dict['status'] = False
 #             response_dict['message'] = 'file not available!'
 #             return jsonify(response_dict)
-#         for video in range(len(video_file)):
-#             upload_file_to_bucket(request.files[str(video)])
-#             v_results.append(video_file.get('file').filename.split('.')[0])
+#         for video in video_file:
+#             #upload_file_to_bucket(video)
+#             v_results.append(video.filename.split('.')[0])
 #         return jsonify(response_dict)
+
+@app.route('/upload_video',methods = ['POST','GET'])
+def video_upload():
+    response_dict={"status": True, "message": "video saved successfully",'data':{}}
+    if request.method == 'POST':
+        video_file = request.files
+        if not video_file:
+            response_dict['status'] = False
+            response_dict['message'] = 'file not available!'
+            return jsonify(response_dict)
+        for video in range(len(video_file)):
+            upload_file_to_bucket(request.files[str(video)])
+            v_results.append(video_file.get('file').filename.split('.')[0])
+        return jsonify(response_dict)
 
 #have to remove the call
 @app.route('/get_names',methods = ['GET'])

@@ -50,6 +50,7 @@ def get_image_from_bucket(names):
 
 
 from base64 import b64encode
+
 def read_image_from_bucket(names):
 
     bucket = client.get_bucket(app.config['BUCKET_NAME'])
