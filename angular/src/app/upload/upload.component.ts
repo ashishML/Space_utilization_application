@@ -52,9 +52,7 @@ export class UploadComponent implements OnInit {
     this.service.uploadVideo(this.formData).subscribe(
         (res:any) => { 
           if(res.status){
-            console.log(res);
             this.service.getNames(this.fileName).subscribe(res => {
-              console.log(res);
               this.loading = false;
               this.router.navigate(['../annotate']);
             })

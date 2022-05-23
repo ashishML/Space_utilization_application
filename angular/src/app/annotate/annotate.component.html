@@ -1,17 +1,9 @@
 <div class="container-fluid">
     <div class="row ">
-        <div class="col-6">
-            <div class="card shadow border-0 mt-5 p-3">
-                <div class="card-body placeholder-wave" [ngClass]="{'placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '200px' : null">
-                    <!-- <img src="../../assets/upload.svg" alt="" > -->
-                    <img [src]='thumbnail' />
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
+        <div class="col-6" *ngFor="let item of imagePath">
             <div class="card shadow border-0 mt-5 ">
-                <div class="card-body placeholder-wave" [ngClass]="{'placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '200px' : null" >
-                    <img src="../../assets/upload.svg" alt="" >
+                <div class="card-body p-0 text-center"  [ngClass]="{'placeholder-wave placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '50vh' : null" >
+                    <img [src]="item" class="img-fluid" />
                 </div>
             </div>
         </div>
