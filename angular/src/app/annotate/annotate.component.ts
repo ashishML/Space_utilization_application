@@ -16,18 +16,17 @@ export class AnnotateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadingAnimate = true;
-    this.service.getFrames().subscribe(
-      (res:any) => {      
-      this.loadingAnimate = false;
-      this.imagePath = [];
-      console.log(res);
-      res['data'].forEach((element:any) => {
-        this.imagePath.push(this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${element}`))
-      });
-      }),
-      (err:any) => {
-        this.loadingAnimate = false;
-      }
+    this.service.getFrames().subscribe({
+        next: (res:any) => {
+          this.loadingAnimate = false;
+          this.imagePath = [];
+          console.log(res);
+          res['data'].forEach((element:any) => {
+            this.imagePath.push(this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${element}`))
+          });
+        },
+        error: (err:any) => this.loadingAnimate = false
+      })
   }
 
 
