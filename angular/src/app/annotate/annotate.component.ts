@@ -22,6 +22,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   canvasid: any = [];
   public ctx!: CanvasRenderingContext2D;
   newImageObj:any;
+  imageDimensions:any = [];
 
   ngOnInit(): void {
     this.loadingAnimate = true;
@@ -30,16 +31,24 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
         this.loadingAnimate = false;
         this.imagePath = [];
         const base64Image:any = [];
+        const imageDimObj = {
+          width: 0,
+          height: 0
+        }
         res['data'].forEach((element:any) => {
           this.imagePath.push(this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${element}`))
           base64Image.push(`data:image/jpeg;base64,${element}`)
         });
         base64Image.forEach(async(elements:any )=> {
-          console.log(elements);
           let img = new Image();
           img.src = elements
           await img.decode();
           console.log(img.width, img.height);
+          imageDimObj.width = img.width;
+          imageDimObj.height = img.height;
+          this.imageDimensions.push(imageDimObj)
+          console.log(this.imageDimensions);
+          
         });        
       },
       error: err => this.loadingAnimate = false
