@@ -90,13 +90,13 @@ def gen_frames():
     while True:
         success, frame = camera.read()  # read the camera frame
         frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
-        cropped_frame = region_of_interest(frame, vertices)
+        #vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
+        #cropped_frame = region_of_interest(frame, vertices)
 
         if not success:
             break
         else:
-            ret, buffer = cv2.imencode('.jpg', cropped_frame)
+            ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
