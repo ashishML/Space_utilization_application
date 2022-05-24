@@ -1,14 +1,13 @@
+import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ApiService } from '../api.service';
-import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 
 @Component({
   selector: 'app-annotate',
   templateUrl: './annotate.component.html',
   styleUrls: ['./annotate.component.css']
-})
+})  
 export class AnnotateComponent implements OnInit, AfterViewInit {
-
   constructor(private service: ApiService, private sanitizer: DomSanitizer) { }
 
   loadingAnimate = true;
