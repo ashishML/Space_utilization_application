@@ -6,7 +6,8 @@
                     <small>Image {{i+1}}</small>
                 </div>
                 <div class="card-body p-0 text-center"  [ngClass]="{'placeholder-wave placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '50vh' : null" >
-                    <img [src]="item" class="img-fluid" />
+                    <!-- <img [src]="item" class="img-fluid" /> -->
+                    <canvas id={{i}} (click)="rect($event,i)" #multicanvas></canvas>  
                 </div>
             </div>
         </div>
@@ -14,7 +15,7 @@
     <div class="row mt-4">
         <div class="col-12 text-center">
             <button class="btn prevBtn me-3" routerLink="../upload"><span class="material-symbols-outlined align-bottom me-4">undo</span>REUPLOAD ANOTHER VIDEO </button>
-            <button class="btn nextBtn ms-3"  routerLink="../result">SUBMIT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+            <button class="btn nextBtn ms-3"  routerLink="../result" (click)="submit()">SUBMIT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
         </div>
     </div>
 </div>
