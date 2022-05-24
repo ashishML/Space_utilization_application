@@ -21,11 +21,12 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   canvasid: any = [];
   public ctx!: CanvasRenderingContext2D;
   newImageObj:any;
-
+  image_dimensions:any=[]
   ngOnInit(): void {
     this.loadingAnimate = true;
     this.service.getFrames().subscribe({
       next: (res:any) => {
+        // console.log(res)
         this.loadingAnimate = false;
         this.imagePath = [];
         const base64Image:any = [];
@@ -34,11 +35,13 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
           base64Image.push(`data:image/jpeg;base64,${element}`)
         });
         base64Image.forEach(async(elements:any )=> {
-          console.log(elements);
+          // console.log(elements);
           let img = new Image();
           img.src = elements
           await img.decode();
-          console.log(img.width, img.height);
+          this.image_dimensions.push({img:img , width:img.width, height:img.height})
+          // console.log( this.image_dimensions);
+          this.ngAfterViewInit()
         });        
       },
       error: err => this.loadingAnimate = false
@@ -50,18 +53,18 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.canvasid = this.multicanvas.toArray()
     this.canvasid.forEach((element: any) => {
       const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
+      this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
       const img = new Image();
       img.src = this.imagePath[+element.nativeElement.id];
-      this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
-      let img_width = img.width;
-      let img_height = img.height;
+      let img_width =  this.image_dimensions[+element.nativeElement.id].img.width;
+      let img_height = this.image_dimensions[+element.nativeElement.id].img.height;
       ref.width = img_width;
       ref.height = img_height;
 
-      img.onload = () => {
-        this.ctx.drawImage(img, 0, 0, img_width, img_height);
-      }
-      this.canvas_img_info.push({ ctx: this.ctx, img: img.src, img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
+      // this.image_dimensions[+element.nativeElement.id].img.onload = () => {
+        this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id].img, 0, 0, img_width, img_height);
+      // }
+      this.canvas_img_info.push({ ctx: this.ctx, img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
 
     });
   }
@@ -80,7 +83,6 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
         cordinates.id = id
         this.cordinates_all.push(cordinates)
         this.canvas_img_info[x].cordinates.push([x_cordinate, y_cordinate])
-        console.log(this.canvas_img_info[x].cordinates)
         this.drawDot(x_cordinate, y_cordinate, this.canvas_img_info[x].ctx)
         if (this.canvas_img_info[x].cordinates.length === 4) {
 
@@ -89,7 +91,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
       }
     }
-
+  //  console.log(this.canvas_img_info)
   }
   getcordinate(cordinate: any, originalcordinate: any, ratiocordinate: any): any {
     return cordinate * (originalcordinate / ratiocordinate);
