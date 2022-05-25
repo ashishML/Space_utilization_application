@@ -33,7 +33,7 @@ v_results = []
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
     if request.method == 'POST':
-        roi = eval(request.form['roi'])
+        roi = eval(request.json['roi'])
         cords = roi_cordinates(roi)
         if big_query_test(cords):
             return jsonify(response_dict)
