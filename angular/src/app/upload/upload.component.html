@@ -6,7 +6,7 @@
                     <img src="../../assets/upload.svg" alt="" class="my-3">
                     <h5>Drag & drop</h5>
                     <div>OR</div>
-                    <button class="btn btn-link" (click)="fileUpload.click()">Upload Video</button>
+                    <button class="btn btn-link" (click)="fileUpload.click()">Upload Videos</button>
                     <input type="file" multiple accept=" video/*" style="display: none" #fileUpload  (change)="uploadFile($event)">
                     <small class="d-flex justify-content-center mt-3" *ngFor="let item of fileName">
                         <span  class="material-symbols-outlined me-2">videocam </span> {{item}}
