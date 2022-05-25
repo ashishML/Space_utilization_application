@@ -6,7 +6,8 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  roi_cordinates, big_query_test, read_file_from_bucket
+
+                  read_file_from_bucket, roi_cordinates, big_query_test
 
 
 v_results = []
@@ -54,7 +55,16 @@ def video_upload():
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
         for video in range(len(video_file)):
-            upload_file_to_bucket(request.files[str(video)])
+
+            camera = cv2.VideoCapture(read_file_from_bucket(request.files[str(video)]))
+            #success, frame = camera.read()  # read the camera frame
+            #frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
+            #frame = cv2.resize(frame, (927,521), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+            #upload_file_to_bucket(request.files[str(video)])
+
+            camera.set(3, 927)
+            camera.set(4, 521)
+            upload_file_to_bucket(camera)
             v_results.append(video_file.get(str(video)).filename.split('.')[0])
         return jsonify(response_dict)
 
@@ -109,6 +119,7 @@ def gen_frames():
     camera = cv2.VideoCapture(read_file_from_bucket('2022-05-23_15:34:19___VID-20220422-WA0002'))
     while True:
         success, frame = camera.read()  # read the camera frame
+        #vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
         # vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         #cropped_frame = region_of_interest(frame, vertices)
@@ -140,4 +151,3 @@ def video_feed():
 if __name__ == '__main__':
     CORS(app)
     app.run(host='127.0.0.1', port=8080, debug = True)
-

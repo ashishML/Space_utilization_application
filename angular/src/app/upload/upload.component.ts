@@ -1,6 +1,8 @@
+import { HttpEventType } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
@@ -8,10 +10,11 @@ import { ApiService } from '../api.service';
 })
 export class UploadComponent implements OnInit {
 
-  constructor(private service: ApiService) { }
+  constructor(private service: ApiService, private router: Router, private toastr: ToastrService) { }
   fileName: any = [];
   formData = new FormData();
-
+  loading = false;
+  uploadProgress  = 0;
   ngOnInit(): void {
   }
   
@@ -19,10 +22,9 @@ export class UploadComponent implements OnInit {
     this.fileName = [];  
     const files: FileList  = event.target.files;
     for (let i = 0; i < files.length; i++) {
-      this.formData.append("file[]", files[i]);
+      this.formData.append(i.toString(), files[i]);
       this.fileName.push(files[i].name);
     }
-    
   }
 
   onDrop(event: any) {
@@ -31,7 +33,7 @@ export class UploadComponent implements OnInit {
     this.fileName = [];
     const files: FileList = event.dataTransfer.files;
     for (let i = 0; i < files.length; i++) {
-      this.formData.append("file[]", files[i]);
+      this.formData.append(i.toString(), files[i]);
       this.fileName.push(files[i].name);
     }
   }
@@ -46,9 +48,32 @@ export class UploadComponent implements OnInit {
     event.stopPropagation();
   }
 
-  submitVideo(){    
-    this.service.uploadVideo(this.formData).subscribe(
-      res => { console.log(res)},
-    )
+  submitVideo(){
+    if (this.fileName.length > 0) {
+      this.loading = true;
+      this.service.uploadVideo(this.formData).subscribe({
+        next: (res:any) => {            
+          if (res.type === HttpEventType.UploadProgress) {
+            this.uploadProgress = Math.round(100 * res.loaded / res.total);
+          }
+          else if (res.type === HttpEventType.Response){   
+            this.uploadProgress = 100;         
+            this.service.getNames(this.fileName).subscribe(res => {
+              this.loading = false;
+              this.router.navigate(['../annotate']);
+            })
+          }
+        },
+        error: (error:any) => {
+          this.toastr.error('Please try again', 'Unable to send');
+          this.loading = false;
+        }
+      })
+    } 
+    else {
+      this.toastr.error('File Error', 'No file uploaded');
+    }
+    
   }
+  
 }
