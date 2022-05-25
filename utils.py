@@ -2,7 +2,7 @@ import os
 import datetime
 from google.cloud import storage
 from app import app
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'creds.json'
 
 client = storage.Client()
 

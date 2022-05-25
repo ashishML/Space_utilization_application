@@ -5,7 +5,8 @@ app = Flask(__name__)
 import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
-                  upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket, read_file_from_bucket
+                  upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
+                  read_file_from_bucket
 
 
 v_results = []
