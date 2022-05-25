@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 
 @Component({
@@ -8,7 +10,7 @@ import { ApiService } from '../api.service';
   styleUrls: ['./annotate.component.css']
 })
 export class AnnotateComponent implements OnInit, AfterViewInit {
-  constructor(private service: ApiService, private sanitizer: DomSanitizer) { }
+  constructor(private service: ApiService, private sanitizer: DomSanitizer, private router: Router, private toastr: ToastrService) { }
 
   loadingAnimate = true;
   imagePath: any = ['', ''];
@@ -18,7 +20,8 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   canvasid: any = [];
   public ctx!: CanvasRenderingContext2D;
   newImageObj: any;
-  image_dimensions: any = []
+  image_dimensions: any = [];
+  loading = false;
 
   ngOnInit(): void {
     this.loadingAnimate = true;
@@ -112,7 +115,20 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   }
 
   submit(){
-    console.log(this.cordinates_all)
+    this.loading = true;
+    const sendObj :any= {}
+    sendObj.roi = JSON.stringify(this.cordinates_all)
+    this.service.sendCordinates(sendObj).subscribe({
+      next: (res:any) => {
+        console.log(res);
+        this.loading = false;
+        this.router.navigate(['../result']);
+      },
+      error : (err) => {
+        this.loading = false;
+        this.toastr.error('Please try again', 'Unable to send');
+      }
+    })
   }
 
 }
