@@ -25,8 +25,7 @@ def read_file_from_bucket(video_name):
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob('results/'+video_name+'.mp4')
     return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
-
-    
+  
 def get_bucket_file_names():
     result = []
     succ = True

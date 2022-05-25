@@ -43,7 +43,6 @@ def save_cordinates():
             return jsonify(response_dict)
 
 
-
 @app.route('/upload_video',methods = ['POST','GET'])
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
