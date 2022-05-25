@@ -90,7 +90,7 @@ def gen_frames():
     while True:
         success, frame = camera.read()  # read the camera frame
         frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        frame = cv2.resize(frame, (936,526), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+        frame = cv2.resize(frame, (927,521), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
         #vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         #cropped_frame = region_of_interest(frame, vertices)
 
