@@ -2,7 +2,12 @@ import os
 import datetime
 from google.cloud import storage
 from app import app
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'creds.json'
+
+from base64 import b64encode
+from google.cloud import bigquery
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
+os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 
 client = storage.Client()
 
@@ -54,10 +59,8 @@ def get_image_from_bucket(names):
     return serving_url
 
 
-from base64 import b64encode
 
 def read_image_from_bucket(names):
-
     bucket = client.get_bucket(app.config['BUCKET_NAME'])
     blobs = bucket.list_blobs(prefix='first_frame/'+names)
     for idx, bl in enumerate(blobs):
@@ -65,4 +68,32 @@ def read_image_from_bucket(names):
         b = b64encode(data).decode("utf-8")
     return b
 
+def big_query_test(cord_data):
+    rows =[]
+    room_count = 0
+    for k,v in cord_data.items():
+        out={}
+        room_count+=1
+        out['Camera_ID'] = k
+        out['ROI'] = str(v)
+        out['Room']='room'+'-0'+str(room_count)
+        rows.append(out)
+    client = bigquery.Client()
+    table_id = "springml-gcp-internal-projects.space_utilization.ROI"
+    
+    errors = client.insert_rows_json(table_id, rows)
+    if errors == []:
+        return True
+    else:
+        return False
 
+
+
+def roi_cordinates(data):
+    result = {}
+    for each in data:
+        if each.get('id') in result.keys():
+            result[each.get('id')].append((round(each.get('x')),round(each.get('y'))))
+        else:
+            result[each.get('id')] = [(round(each.get('x')),round(each.get('y')))]
+    return result

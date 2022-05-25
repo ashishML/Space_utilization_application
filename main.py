@@ -6,14 +6,15 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  read_file_from_bucket
+                  read_file_from_bucket, roi_cordinates, big_query_test
+
 
 
 v_results = []
 #for backend
 # @app.route('/upload_video',methods = ['POST','GET'])
 # def video_upload():
-#     print(v_results,'**********')
+    
 #     response_dict={"status": True, "message": "video saved successfully",'data':{}}
 #     if request.method == 'POST':
 #         video_file = request.files.getlist('file')
@@ -22,9 +23,27 @@ v_results = []
 #             response_dict['message'] = 'file not available!'
 #             return jsonify(response_dict)
 #         for video in video_file:
-#             #upload_file_to_bucket(video)
+#             upload_file_to_bucket(video)
+#             if video.filename.split('.')[0] == '':
+#                 continue
 #             v_results.append(video.filename.split('.')[0])
 #         return jsonify(response_dict)
+
+
+@app.route('/roi_cordinates',methods = ['POST'])
+def save_cordinates():
+    response_dict={"status": True, "message": "data saved.",'data':{}}
+    if request.method == 'POST':
+        roi = eval(request.json['roi'])
+        cords = roi_cordinates(roi)
+        if big_query_test(cords):
+            return jsonify(response_dict)
+        else:
+            response_dict['data'] = False
+            response_dict['message'] = 'data not saved!'
+            return jsonify(response_dict)
+
+
 
 @app.route('/upload_video',methods = ['POST','GET'])
 def video_upload():
@@ -65,6 +84,7 @@ def list_of_video_names():
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
+
     global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
@@ -99,9 +119,9 @@ def gen_frames():
     camera = cv2.VideoCapture(read_file_from_bucket('2022-05-23_15:34:19___VID-20220422-WA0002'))
     while True:
         success, frame = camera.read()  # read the camera frame
-        frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        frame = cv2.resize(frame, (927,521), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
         #vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
+        # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
+        # vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         #cropped_frame = region_of_interest(frame, vertices)
 
         if not success:
@@ -132,4 +152,3 @@ def video_feed():
 if __name__ == '__main__':
     CORS(app)
     app.run(host='127.0.0.1', port=8080, debug = True)
-
