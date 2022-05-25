@@ -6,8 +6,8 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  read_file_from_bucket, roi_cordinates, big_query_test
 
+                  read_file_from_bucket, roi_cordinates, big_query_test
 
 
 v_results = []
@@ -123,7 +123,6 @@ def gen_frames():
         # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
         # vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
         #cropped_frame = region_of_interest(frame, vertices)
-
         if not success:
             break
         else:
