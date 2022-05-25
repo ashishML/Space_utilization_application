@@ -65,24 +65,25 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
   //different approach
   rect(evt: any, id: any) {
-    for (let x = 0; x < this.canvas_img_info.length; x++) {
-      if (this.canvas_img_info[x].id == id) {
+    this.canvas_img_info.forEach((element: any) => {
+      if (element.id == id) {
         const cordinates = {
           x: null, y: null, id: null
         }
-        let x_cordinate = this.getcordinate(evt.offsetX, this.canvas_img_info[x].img_width, this.canvas_img_info[x].ctx.canvas.offsetWidth)
-        let y_cordinate = this.getcordinate(evt.offsetY, this.canvas_img_info[x].img_height, this.canvas_img_info[x].ctx.canvas.offsetHeight)
+        let x_cordinate = this.getcordinate(evt.offsetX, element.img_width, element.ctx.canvas.offsetWidth)
+        let y_cordinate = this.getcordinate(evt.offsetY, element.img_height, element.ctx.canvas.offsetHeight)
         cordinates.x = x_cordinate
         cordinates.y = y_cordinate
         cordinates.id = id
         this.cordinates_all.push(cordinates)
-        this.canvas_img_info[x].cordinates.push([x_cordinate, y_cordinate])
-        this.drawDot(x_cordinate, y_cordinate, this.canvas_img_info[x].ctx)
-        if (this.canvas_img_info[x].cordinates.length === 4) {
-          this.drawPoly(this.canvas_img_info[x].cordinates, this.canvas_img_info[x].ctx)
+        element.cordinates.push([x_cordinate, y_cordinate])
+        this.drawDot(x_cordinate, y_cordinate, element.ctx)
+        if (element.cordinates.length === 4) {
+          this.drawPoly(element.cordinates, element.ctx)
         }
       }
-    }
+    })
+    
   }
 
   getcordinate(cordinate: any, originalcordinate: any, ratiocordinate: any): any {
@@ -92,7 +93,9 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   // draw polygon from a list of 4 points
   drawPoly(points: any, ctx: any) {
     ctx.lineWidth = 2
+    console.log(points)
     let split = points.splice(0, 4)
+    points=split
     ctx.beginPath()
     ctx.moveTo(split[0][0], split[0][1])
     for (let i of split.reverse()) ctx.lineTo(i[0], i[1])
