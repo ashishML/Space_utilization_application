@@ -28,4 +28,8 @@ export class ApiService {
   sendCordinates(payload:any){
     return this.http.post(`${this.API_ENDPOINT}/roi_cordinates`, payload)
   }
+
+  getVideos(){    
+    return `${this.API_ENDPOINT}/video_feed`
+  }
 }

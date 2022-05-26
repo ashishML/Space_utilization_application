@@ -2,7 +2,6 @@ import os
 import datetime
 from google.cloud import storage
 from app import app
-
 from base64 import b64encode
 from google.cloud import bigquery
 
@@ -21,6 +20,12 @@ def upload_file_to_bucket(file):
     blob.upload_from_string(data, content_type = 'video/mp4', timeout=600)
     return 
 
+def read_file_from_bucket(video_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(app.config['BUCKET_NAME'])
+    blob = bucket.blob('results/'+video_name+'.mp4')
+    return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
+  
 def get_bucket_file_names():
     result = []
     succ = True
@@ -38,11 +43,6 @@ def read_file_to_bucket(video_name):
     blob = bucket.blob('videos/'+video_name+'.mp4')
     return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
 
-def read_file_from_bucket(video_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(app.config['BUCKET_NAME'])
-    blob = bucket.blob('results/'+video_name+'.mp4')
-    return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
 
 def upload_image_file_to_bucket(img_str,names):
     remote_path = 'first_frame' + "/" + names
