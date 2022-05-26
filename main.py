@@ -52,18 +52,14 @@ def video_upload():
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in range(len(video_file)):
-            camera = cv2.VideoCapture(read_file_from_bucket(request.files[str(video)]))
-            success, frame = camera.read()  # read the camera frame
-            frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-            frame = cv2.resize(frame, (927,521), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+        for count, video in enumerate(video_file):
+            camera = cv2.VideoCapture(video)
             
-            #camera.set(3, 927)
-            #camera.set(4, 521)
-            upload_file_to_bucket(frame)
-            #upload_file_to_bucket(request.files[str(video)])
-            upload_file_to_bucket(request.files[str(video)])
-            v_results.append(video_file.get(str(video)).filename.split('.')[0])
+            camera.set(3, 927)
+            camera.set(4, 521)
+            
+            upload_file_to_bucket(request.files[str(count)])
+            v_results.append(video_file.get(str(count)).filename.split('.')[0])
         return jsonify(response_dict)
 
 #have to remove the call
