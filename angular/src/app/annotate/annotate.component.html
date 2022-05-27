@@ -2,8 +2,11 @@
     <div class="row ">
         <div class="col-6" *ngFor="let item of imagePath; index as i">
             <div class="card shadow border-0 mt-5" >
-                <div class="card-header bg-dark text-white">
+                <div class="card-header bg-dark text-white d-flex justify-content-between">
                     <small>Image {{i+1}}</small>
+                    <span class="material-symbols-outlined" style="cursor:pointer;" (click)="clearCanvas(i)">
+                        replay
+                        </span>
                 </div>
                 <div class="card-body p-0 text-center"  [ngClass]="{'placeholder-wave placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '50vh' : null" >
                     <!-- <img [src]="item" class="img-fluid" /> -->
