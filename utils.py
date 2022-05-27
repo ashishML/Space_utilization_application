@@ -1,5 +1,7 @@
 import os
 import datetime
+from tkinter.tix import Tree
+from unittest import result
 from google.cloud import storage
 from app import app
 from base64 import b64encode
@@ -36,6 +38,14 @@ def get_bucket_file_names():
     if not result:
         succ = False
     return result,succ
+
+# Function to check video in 'results'
+def check_video_name(name):
+    result = False
+    for blob in client.list_blobs(app.config['BUCKET_NAME'],prefix='results/'):
+        if blob.name.split('/')[-1] == name:
+            result = True
+    return result
 
 def read_file_to_bucket(video_name):
     storage_client = storage.Client()
