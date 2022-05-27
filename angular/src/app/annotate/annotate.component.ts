@@ -13,7 +13,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   constructor(private service: ApiService, private sanitizer: DomSanitizer, private router: Router, private toastr: ToastrService) { }
 
   loadingAnimate = true;
-  imagePath: any = ['', ''];
+  imagePath: any = [];
   cordinates_all: any = [];
   @ViewChildren("multicanvas") multicanvas!: QueryList<ElementRef>;
   canvas_img_info: any = []
@@ -26,6 +26,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.service.UploadedVideosName.subscribe(res => this.fileName = res)
+    this.imagePath = [...this.fileName];
     this.loadingAnimate = true;
     this.service.getFrames().subscribe({
       next: (res: any) => {

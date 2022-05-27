@@ -4,7 +4,7 @@
             <div class="card shadow border-0 mt-5" >
                 <div class="card-header bg-dark text-white d-flex justify-content-between">
                     <small>Image {{i+1}}</small>
-                    <span class="material-symbols-outlined" style="cursor:pointer;" (click)="clearCanvas(i)">replay</span>
+                    <span class="material-symbols-outlined fs-6" role="button" (click)="clearCanvas(i)" data-bs-toggle="tooltip"  title="Redraw">replay</span>
                 </div>
                 <div class="card-body p-0 text-center"  [ngClass]="{'placeholder-wave placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '50vh' : null" >
                     <canvas id={{i}} (click)="rect($event,i)" class="w-100" #multicanvas></canvas>  
