@@ -80,9 +80,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
         cordinates.x = x_cordinate
         cordinates.y = y_cordinate
         cordinates.id = id
-        cordinates.v_name = this.fileName[id]
-        console.log(cordinates);
-        
+        cordinates.v_name = this.fileName[id]        
         this.cordinates_all.push(cordinates)
         element.cordinates.push([x_cordinate, y_cordinate])
         this.drawDot(x_cordinate, y_cordinate, element.ctx)
