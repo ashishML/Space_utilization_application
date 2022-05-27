@@ -4,11 +4,27 @@ from google.cloud import storage
 from app import app
 from base64 import b64encode
 from google.cloud import bigquery
+import urllib
+import google.auth.transport.requests
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 
 client = storage.Client()
+
+
+
+def make_authorized_get_request(v_name,room,cameraid,roi):
+    
+    endpoint ='https://spaceutilizationv4-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app'
+    req = urllib.request.Request(endpoint)
+    auth_req = google.auth.transport.requests.Request()
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
+    req.add_header("Authorization", f"Bearer {id_token}")
+    response = urllib.request.urlopen(req)
+    return response.read()
+
 
 def upload_file_to_bucket(file):
     name = file.filename
@@ -71,13 +87,13 @@ def read_image_from_bucket(names):
 def big_query_test(cord_data):
     rows =[]
     room_count = 0
-    for k,v in cord_data.items():
+    for each in cord_data:
         out={}
-        room_count+=1
-        out['Camera_ID'] = k
-        out['ROI'] = str(v)
+        out['Camera_ID'] = room_count
+        out['ROI'] =  str(each.get(room_count))
         out['Room']='room'+'-0'+str(room_count)
         rows.append(out)
+        room_count+=1
     client = bigquery.Client()
     table_id = "springml-gcp-internal-projects.space_utilization.ROI"
     
@@ -86,14 +102,18 @@ def big_query_test(cord_data):
         return True
     else:
         return False
-
+    
 
 
 def roi_cordinates(data):
-    result = {}
+    val = []
     for each in data:
+        result = {}
         if each.get('id') in result.keys():
             result[each.get('id')].append((round(each.get('x')),round(each.get('y'))))
+            result['v_name'] =each.get('v_name')
         else:
             result[each.get('id')] = [(round(each.get('x')),round(each.get('y')))]
-    return result
+            result['v_name'] =each.get('v_name')
+        val.append(result)
+    return val
