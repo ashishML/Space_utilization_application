@@ -22,8 +22,10 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   newImageObj: any;
   image_dimensions: any = [];
   loading = false;
+  fileName = [];
 
   ngOnInit(): void {
+    this.service.UploadedVideosName.subscribe(res => this.fileName = res)
     this.loadingAnimate = true;
     this.service.getFrames().subscribe({
       next: (res: any) => {
@@ -71,13 +73,16 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.canvas_img_info.forEach((element: any) => {
       if (element.id == id) {
         const cordinates = {
-          x: null, y: null, id: null
+          x: NaN, y: NaN, id: NaN, v_name: ''
         }
         let x_cordinate = this.getcordinate(evt.offsetX, element.img_width, element.ctx.canvas.offsetWidth)
         let y_cordinate = this.getcordinate(evt.offsetY, element.img_height, element.ctx.canvas.offsetHeight)
         cordinates.x = x_cordinate
         cordinates.y = y_cordinate
         cordinates.id = id
+        cordinates.v_name = this.fileName[id]
+        console.log(cordinates);
+        
         this.cordinates_all.push(cordinates)
         element.cordinates.push([x_cordinate, y_cordinate])
         this.drawDot(x_cordinate, y_cordinate, element.ctx)

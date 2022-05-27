@@ -56,9 +56,10 @@ export class UploadComponent implements OnInit {
           if (res.type === HttpEventType.UploadProgress) {
             this.uploadProgress = Math.round(100 * res.loaded / res.total);
           }
-          else if (res.type === HttpEventType.Response){   
+          else if (res.type === HttpEventType.Response){ 
             this.uploadProgress = 100;         
             this.service.getNames(this.fileName).subscribe(res => {
+              this.service.UploadedVideosName.next(this.fileName)
               this.loading = false;
               this.router.navigate(['../annotate']);
             })
