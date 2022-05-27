@@ -14,10 +14,7 @@ export class ApiService {
   UploadedVideosName = new BehaviorSubject([])
 
   uploadVideo(payload:any){
-    return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload, {
-      reportProgress: true,
-      observe: 'events'
-    })
+    return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
   }
 
   getNames(payload:any){

@@ -1,4 +1,3 @@
-import { HttpEventType } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -14,7 +13,6 @@ export class UploadComponent implements OnInit {
   fileName: any = [];
   formData = new FormData();
   loading = false;
-  uploadProgress  = 0;
   ngOnInit(): void {
   }
   
@@ -53,17 +51,11 @@ export class UploadComponent implements OnInit {
       this.loading = true;
       this.service.uploadVideo(this.formData).subscribe({
         next: (res:any) => {            
-          if (res.type === HttpEventType.UploadProgress) {
-            this.uploadProgress = Math.round(100 * res.loaded / res.total);
-          }
-          else if (res.type === HttpEventType.Response){ 
-            this.uploadProgress = 100;         
-            this.service.getNames(this.fileName).subscribe(res => {
-              this.service.UploadedVideosName.next(this.fileName)
-              this.loading = false;
-              this.router.navigate(['../annotate']);
-            })
-          }
+          this.service.getNames(this.fileName).subscribe(res => {
+            this.service.UploadedVideosName.next(this.fileName)
+            this.loading = false;
+            this.router.navigate(['../annotate']);
+          })
         },
         error: (error:any) => {
           this.toastr.error('Please try again', 'Unable to send');
