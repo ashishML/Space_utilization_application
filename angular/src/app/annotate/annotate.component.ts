@@ -51,15 +51,16 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.canvasid.forEach((element: any) => {
       const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
       this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
-      const img = new Image();
-      img.src = this.imagePath[+element.nativeElement.id];
       let img_width = this.image_dimensions[+element.nativeElement.id].img.width;
       let img_height = this.image_dimensions[+element.nativeElement.id].img.height;
       ref.width = img_width;
       ref.height = img_height;
       this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id].img, 0, 0, img_width, img_height);
-      this.canvas_img_info.push({ ctx: this.ctx, img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
-
+      if (this.canvas_img_info.some((i: any) => i.id === +element.nativeElement.id)) {
+        return
+      } else {
+        this.canvas_img_info.push({ ctx: this.ctx, img_info: this.image_dimensions[+element.nativeElement.id], img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
+      }
     });
   }
 
@@ -75,15 +76,19 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
         cordinates.x = x_cordinate
         cordinates.y = y_cordinate
         cordinates.id = id
-        this.cordinates_all.push(cordinates)
-        element.cordinates.push([x_cordinate, y_cordinate])
+        if (element.cordinates.some((i: any) => i[0] === x_cordinate && i[1] === y_cordinate)) {
+          return
+        } else {
+          element.cordinates.push([x_cordinate, y_cordinate])
+          this.cordinates_all.push(cordinates)
+        }
         this.drawDot(x_cordinate, y_cordinate, element.ctx)
         if (element.cordinates.length === 4) {
           this.drawPoly(element.cordinates, element.ctx)
         }
       }
     })
-    
+
   }
 
   getcordinate(cordinate: any, originalcordinate: any, ratiocordinate: any): any {
@@ -93,9 +98,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   // draw polygon from a list of 4 points
   drawPoly(points: any, ctx: any) {
     ctx.lineWidth = 2
-    console.log(points)
     let split = points.splice(0, 4)
-    points=split
     ctx.beginPath()
     ctx.moveTo(split[0][0], split[0][1])
     for (let i of split.reverse()) ctx.lineTo(i[0], i[1])
@@ -114,7 +117,20 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
   }
 
-  submit(){
+  clearCanvas(id: any) {
+    this.canvas_img_info.forEach((element: any) => {
+      if (element.id == id) {
+        element.ctx.clearRect(0, 0, element.img_width, element.img_width)
+        element.ctx.canvas.width = element.img_width;
+        element.ctx.canvas.height = element.img_height;
+        element.ctx.drawImage(element.img_info.img, 0, 0, element.img_width, element.img_height);
+        let cordinates_of_image = this.cordinates_all.filter(function (value: any) { return value.id == id; });
+        this.cordinates_all = this.cordinates_all.filter(function (obj: any) { return cordinates_of_image.indexOf(obj) == -1 });
+      }
+    })
+  }
+
+  submit() {
     console.log(this.cordinates_all)
   }
 
