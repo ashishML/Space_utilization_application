@@ -3,9 +3,13 @@ import datetime
 from google.cloud import storage
 from app import app
 from base64 import b64encode
-from google.cloud import bigquery
 import urllib
 import google.auth.transport.requests
+import google.oauth2.id_token
+import pandas as pd
+import pandas_gbq
+from google.oauth2 import service_account
+import pandas_gbq
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
@@ -13,10 +17,13 @@ os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 client = storage.Client()
 
 
+credentials_pd = service_account.Credentials.from_service_account_file('creds.json',)
+
+
+
 
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    
-    endpoint ='https://spaceutilizationv4-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    endpoint ='https://spaceutilizationv4-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
     audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app'
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
@@ -35,6 +42,8 @@ def upload_file_to_bucket(file):
     blob = bucket.blob(remote_path)
     blob.upload_from_string(data, content_type = 'video/mp4', timeout=600)
     return 
+
+
 
 def read_file_from_bucket(video_name):
     storage_client = storage.Client()
@@ -84,36 +93,25 @@ def read_image_from_bucket(names):
         b = b64encode(data).decode("utf-8")
     return b
 
-def big_query_test(cord_data):
-    rows =[]
-    room_count = 0
-    for each in cord_data:
-        out={}
-        out['Camera_ID'] = room_count
-        out['ROI'] =  str(each.get(room_count))
-        out['Room']='room'+'-0'+str(room_count)
-        rows.append(out)
-        room_count+=1
-    client = bigquery.Client()
-    table_id = "springml-gcp-internal-projects.space_utilization.ROI"
-    
-    errors = client.insert_rows_json(table_id, rows)
-    if errors == []:
+def save_cordinates_to_bq(roi):
+    try:
+        temp_df = pd.DataFrame(roi)
+        temp_df['x'] = temp_df['x'].astype(int)
+        temp_df['y'] = temp_df['y'].astype(int)
+        temp_df['x'] = temp_df['x'].astype(str)
+        temp_df['y'] = temp_df['y'].astype(str)
+        temp_df['ROI'] = '(' + temp_df['x'] + ',' +temp_df['y'] + ')'
+        temp_df = temp_df.groupby('id').agg(lambda ROI: ','.join(ROI)).reset_index()
+        temp_df['id'] = temp_df['id'].astype(str)
+        temp_df['ROI'] = '[' + temp_df['ROI'] + ']'
+        temp_df['Room'] = 'RoomA'
+        temp_df_2 = temp_df[['Room','id','ROI']]
+        temp_df_2.columns = ['Room','Camera_ID','ROI']
+        temp_df_2.to_dict()
+        pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
+        # for index, row in temp_df_2.iterrows():
+        #     print(row['Camera_ID'], row['ROI'],row['Room'])
+        #     make_authorized_get_request('name','room',str(row['Camera_ID']),str(row['ROI']))#(v_name,room,cameraid,roi)
         return True
-    else:
+    except:
         return False
-    
-
-
-def roi_cordinates(data):
-    val = []
-    for each in data:
-        result = {}
-        if each.get('id') in result.keys():
-            result[each.get('id')].append((round(each.get('x')),round(each.get('y'))))
-            result['v_name'] =each.get('v_name')
-        else:
-            result[each.get('id')] = [(round(each.get('x')),round(each.get('y')))]
-            result['v_name'] =each.get('v_name')
-        val.append(result)
-    return val
