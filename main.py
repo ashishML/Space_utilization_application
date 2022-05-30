@@ -7,7 +7,8 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  roi_cordinates, big_query_test, read_file_from_bucket, check_video_name
+                  roi_cordinates, big_query_test, read_file_from_bucket, check_video_name, \
+                  get_videos
 
 
 v_results = []
@@ -94,6 +95,17 @@ def check_video():
                 response_dict['data'] = False
                 response_dict['message'] = 'File not available'
     return jsonify(response_dict)
+
+
+# API to display result videos
+@app.route('/play_videos',methods = ['GET'])
+def play_videos():
+    response_dict={"status": True, "message": "",'data':{}}
+    if request.method == 'GET':
+        v_name = request.args.get('v_name')  
+        response_dict['data'] = [get_videos((v_name))]
+        return jsonify(response_dict)
+
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
