@@ -145,8 +145,15 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.service.sendCordinates(sendObj).subscribe({
       next: (res:any) => {
         console.log(res);
-        this.loading = false;
-        this.router.navigate(['../result']);
+        if(res.status){
+          this.loading = false;
+          this.router.navigate(['../result']);
+        }
+        else{
+          this.loading = false;
+          this.toastr.error('Please try again', 'Unable to send');
+        }
+        
       },
       error : (err) => {
         this.loading = false;
