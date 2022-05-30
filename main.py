@@ -1,3 +1,4 @@
+from unittest import result
 from flask import Flask,jsonify, request, Response, render_template
 import numpy as np
 from app import app
@@ -7,6 +8,8 @@ from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
                   read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq
+                  roi_cordinates, big_query_test, read_file_from_bucket, check_video_name, \
+                  get_videos
 
 v_results = []
 #for backend
@@ -46,15 +49,18 @@ def save_cordinates():
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
     if request.method == 'POST':
-        video_file = request.files
+        video_file = request.files.getlist('file')
         if not video_file:
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in range(len(video_file)):
-            upload_file_to_bucket(request.files[str(video)])
-            v_results.append(video_file.get(str(video)).filename.split('.')[0])
+        for video in video_file:
+            upload_file_to_bucket(video)
+            if video.filename.split('.')[0] == '':
+                continue
+            v_results.append(video.filename.split('.')[0])
         return jsonify(response_dict)
+
 
 #have to remove the call
 @app.route('/get_names',methods = ['GET'])
@@ -67,6 +73,37 @@ def list_of_video_names():
         else:
             response_dict['data'] = False
             response_dict['message'] = 'files not available!'
+        return jsonify(response_dict)
+
+# API to check video in 'results'
+@app.route('/check_video',methods = ['POST'])
+def check_video():
+    response_dict={"status": True, "message": "",'data':{}}
+    if request.method == 'POST':
+        video_name = request.json['video_name']
+        if not video_name:
+            response_dict['data'] = 'NULL'
+            response_dict['status'] = False
+            response_dict['message'] = 'Null Video Name'
+            return jsonify(response_dict)
+        else:
+            result = check_video_name(video_name)
+            if result:
+                response_dict['data'] = True
+                response_dict['message'] = 'File available'
+            else:
+                response_dict['data'] = False
+                response_dict['message'] = 'File not available'
+    return jsonify(response_dict)
+
+
+# API to display result videos
+@app.route('/play_videos',methods = ['GET'])
+def play_videos():
+    response_dict={"status": True, "message": "",'data':{}}
+    if request.method == 'GET':
+        v_name = request.args.get('v_name')  
+        response_dict['data'] = [get_videos((v_name))]
         return jsonify(response_dict)
 
 
