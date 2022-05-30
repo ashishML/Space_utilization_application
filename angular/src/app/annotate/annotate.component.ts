@@ -13,7 +13,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   constructor(private service: ApiService, private sanitizer: DomSanitizer, private router: Router, private toastr: ToastrService) { }
 
   loadingAnimate = true;
-  imagePath: any = ['', ''];
+  imagePath: any = [];
   cordinates_all: any = [];
   @ViewChildren("multicanvas") multicanvas!: QueryList<ElementRef>;
   canvas_img_info: any = []
@@ -22,8 +22,11 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   newImageObj: any;
   image_dimensions: any = [];
   loading = false;
+  fileName = [];
 
   ngOnInit(): void {
+    this.service.UploadedVideosName.subscribe(res => this.fileName = res)
+    this.imagePath = [...this.fileName];
     this.loadingAnimate = true;
     this.service.getFrames().subscribe({
       next: (res: any) => {
@@ -54,38 +57,45 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.canvasid.forEach((element: any) => {
       const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
       this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
-      const img = new Image();
-      img.src = this.imagePath[+element.nativeElement.id];
       let img_width = this.image_dimensions[+element.nativeElement.id].img.width;
       let img_height = this.image_dimensions[+element.nativeElement.id].img.height;
       ref.width = img_width;
       ref.height = img_height;
       this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id].img, 0, 0, img_width, img_height);
-      this.canvas_img_info.push({ ctx: this.ctx, img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
-
+      if (this.canvas_img_info.some((i: any) => i.id === +element.nativeElement.id)) {
+        return
+      } else {
+        this.canvas_img_info.push({ ctx: this.ctx, img_info: this.image_dimensions[+element.nativeElement.id], img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
+      }
     });
   }
 
   //different approach
   rect(evt: any, id: any) {
-    for (let x = 0; x < this.canvas_img_info.length; x++) {
-      if (this.canvas_img_info[x].id == id) {
+    this.canvas_img_info.forEach((element: any) => {
+      if (element.id == id) {
         const cordinates = {
-          x: null, y: null, id: null
+          x: NaN, y: NaN, id: NaN, v_name: ''
         }
-        let x_cordinate = this.getcordinate(evt.offsetX, this.canvas_img_info[x].img_width, this.canvas_img_info[x].ctx.canvas.offsetWidth)
-        let y_cordinate = this.getcordinate(evt.offsetY, this.canvas_img_info[x].img_height, this.canvas_img_info[x].ctx.canvas.offsetHeight)
+        let x_cordinate = this.getcordinate(evt.offsetX, element.img_width, element.ctx.canvas.offsetWidth)
+        let y_cordinate = this.getcordinate(evt.offsetY, element.img_height, element.ctx.canvas.offsetHeight)
         cordinates.x = x_cordinate
         cordinates.y = y_cordinate
         cordinates.id = id
-        this.cordinates_all.push(cordinates)
-        this.canvas_img_info[x].cordinates.push([x_cordinate, y_cordinate])
-        this.drawDot(x_cordinate, y_cordinate, this.canvas_img_info[x].ctx)
-        if (this.canvas_img_info[x].cordinates.length === 4) {
-          this.drawPoly(this.canvas_img_info[x].cordinates, this.canvas_img_info[x].ctx)
+        cordinates.v_name = this.fileName[id] 
+        if (element.cordinates.some((i: any) => i[0] === x_cordinate && i[1] === y_cordinate)) {
+          return
+        } else {
+          element.cordinates.push([x_cordinate, y_cordinate])
+          this.cordinates_all.push(cordinates)
+        }
+        this.drawDot(x_cordinate, y_cordinate, element.ctx)
+        if (element.cordinates.length === 4) {
+          this.drawPoly(element.cordinates, element.ctx)
         }
       }
-    }
+    })
+
   }
 
   getcordinate(cordinate: any, originalcordinate: any, ratiocordinate: any): any {
@@ -114,6 +124,20 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
   }
 
+  clearCanvas(id: any) {
+    this.canvas_img_info.forEach((element: any) => {
+      if (element.id == id) {
+        element.ctx.clearRect(0, 0, element.img_width, element.img_width)
+        element.ctx.canvas.width = element.img_width;
+        element.ctx.canvas.height = element.img_height;
+        element.ctx.drawImage(element.img_info.img, 0, 0, element.img_width, element.img_height);
+        let cordinates_of_image = this.cordinates_all.filter(function (value: any) { return value.id == id; });
+        this.cordinates_all = this.cordinates_all.filter(function (obj: any) { return cordinates_of_image.indexOf(obj) == -1 });
+      }
+    })
+  }
+
+
   submit(){
     this.loading = true;
     const sendObj :any= {}
@@ -121,8 +145,15 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.service.sendCordinates(sendObj).subscribe({
       next: (res:any) => {
         console.log(res);
-        this.loading = false;
-        this.router.navigate(['../result']);
+        if(res.status){
+          this.loading = false;
+          this.router.navigate(['../result']);
+        }
+        else{
+          this.loading = false;
+          this.toastr.error('Please try again', 'Unable to send');
+        }
+        
       },
       error : (err) => {
         this.loading = false;

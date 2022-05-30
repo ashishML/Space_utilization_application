@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -10,11 +11,10 @@ export class ApiService {
   constructor(private http: HttpClient) { }
   API_ENDPOINT = environment.BASE_URL;
 
+  UploadedVideosName = new BehaviorSubject([])
+
   uploadVideo(payload:any){
-    return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload, {
-      reportProgress: true,
-      observe: 'events'
-    })
+    return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
   }
 
   getNames(payload:any){
@@ -27,5 +27,9 @@ export class ApiService {
 
   sendCordinates(payload:any){
     return this.http.post(`${this.API_ENDPOINT}/roi_cordinates`, payload)
+  }
+
+  getVideos(){    
+    return this.http.get(`${this.API_ENDPOINT}/play_videos`)
   }
 }
