@@ -109,9 +109,9 @@ def save_cordinates_to_bq(roi):
         temp_df_2.columns = ['Room','Camera_ID','ROI']
         temp_df_2.to_dict()
         pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
-        # for index, row in temp_df_2.iterrows():
-        #     print(row['Camera_ID'], row['ROI'],row['Room'])
-        #     make_authorized_get_request('name','room',str(row['Camera_ID']),str(row['ROI']))#(v_name,room,cameraid,roi)
+        for index, row in temp_df_2.iterrows():
+            print(row['Camera_ID'], row['ROI'],row['Room'])
+            make_authorized_get_request('name','room',str(row['Camera_ID']),str(row['ROI']))#(v_name,room,cameraid,roi)
         return True
     except:
         return False
