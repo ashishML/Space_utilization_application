@@ -7,9 +7,10 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq
-                  roi_cordinates, big_query_test, read_file_from_bucket, check_video_name, \
+                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq,\
+                  read_file_from_bucket, check_video_name, \
                   get_videos
+
 
 v_results = []
 #for backend
@@ -49,16 +50,14 @@ def save_cordinates():
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
     if request.method == 'POST':
-        video_file = request.files.getlist('file')
+        video_file = request.files
         if not video_file:
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in video_file:
-            upload_file_to_bucket(video)
-            if video.filename.split('.')[0] == '':
-                continue
-            v_results.append(video.filename.split('.')[0])
+        for video in range(len(video_file)):
+            upload_file_to_bucket(request.files[str(video)])
+            v_results.append(video_file.get(str(video)).filename.split('.')[0])
         return jsonify(response_dict)
 
 

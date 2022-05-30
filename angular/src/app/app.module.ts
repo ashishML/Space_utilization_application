@@ -11,7 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 @NgModule({
   declarations: [
     AppComponent,
@@ -28,7 +28,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ReactiveFormsModule,
     BrowserModule,
     BrowserAnimationsModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    LoadingBarHttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
