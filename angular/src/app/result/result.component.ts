@@ -12,8 +12,10 @@ export class ResultComponent implements OnInit {
   getFrame :any
 
   ngOnInit(): void {
-    console.log(this.api.getVideos());
-    this.getFrame = this.api.getVideos()
+    this.api.getVideos().subscribe(res => {
+      console.log(res);
+      
+    })
   }
 
 }

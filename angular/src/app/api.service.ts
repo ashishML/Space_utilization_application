@@ -30,6 +30,6 @@ export class ApiService {
   }
 
   getVideos(){    
-    return `${this.API_ENDPOINT}/video_feed`
+    return this.http.get(`${this.API_ENDPOINT}/play_videos`)
   }
 }
