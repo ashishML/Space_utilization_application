@@ -7,9 +7,9 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
+                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq
                   roi_cordinates, big_query_test, read_file_from_bucket, check_video_name, \
                   get_videos
-
 
 v_results = []
 #for backend
@@ -31,18 +31,18 @@ v_results = []
 #         return jsonify(response_dict)
 
 
+
+
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
+    #roi = [{"x":102,"y":103,"id":0,"v_name":"video-01"},{"x":345,"y":567,"id":1,"v_name":"video-02"},{"x":349,"y":569,"id":0,"v_name":"video-02"}]
+    
     if request.method == 'POST':
-        roi = eval(request.json['roi'])
-        cords = roi_cordinates(roi)
-        if big_query_test(cords):
-            return jsonify(response_dict)
-        else:
-            response_dict['data'] = False
+        if not save_cordinates_to_bq(eval(request.json['roi'])):
+            response_dict['status'] = False
             response_dict['message'] = 'data not saved!'
-            return jsonify(response_dict)
+    return jsonify(response_dict)
 
 
 @app.route('/upload_video',methods = ['POST','GET'])
@@ -141,7 +141,7 @@ def region_of_interest(img, vertices):
     return masked_image
 
 def gen_frames():
-    camera = cv2.VideoCapture(read_file_from_bucket('2022-05-23_15:34:19___VID-20220422-WA0002'))
+    camera = cv2.VideoCapture(read_file_from_bucket('2022-05-23_15:51:54_Room2_Room2A_VID-20220422-WA0002'))
     while True:
         success, frame = camera.read()  # read the camera frame
         # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
@@ -163,11 +163,6 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-
-
-
 
 
 
