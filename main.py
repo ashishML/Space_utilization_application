@@ -6,8 +6,7 @@ import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  roi_cordinates, big_query_test, read_file_from_bucket, make_authorized_get_request
-
+                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq
 
 v_results = []
 #for backend
@@ -34,23 +33,13 @@ v_results = []
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
-    #[{"x":102,"y":103,"id":0,"v_name":"video-01"},{"x":345,"y":567,"id":1,"v_name":"video-02"}]
-
+    #roi = [{"x":102,"y":103,"id":0,"v_name":"video-01"},{"x":345,"y":567,"id":1,"v_name":"video-02"},{"x":349,"y":569,"id":0,"v_name":"video-02"}]
+    
     if request.method == 'POST':
-        roi = eval(request.json['roi'])
-        cords = roi_cordinates(roi)
-        count=0
-        try:
-            if big_query_test(cords):
-                for each in cords:
-                    make_authorized_get_request(each.get('v_name'),'room',str(count),str(each.get(count)))#(v_name,room,cameraid,roi)
-                    count+=1
-            else:
-                response_dict['data'] = False
-                response_dict['message'] = 'data not saved!'
-        except:
-            pass       
-        return jsonify(response_dict)
+        if not save_cordinates_to_bq(eval(request.json['roi'])):
+            response_dict['status'] = False
+            response_dict['message'] = 'data not saved!'
+    return jsonify(response_dict)
 
 
 @app.route('/upload_video',methods = ['POST','GET'])
@@ -142,6 +131,7 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 
 
