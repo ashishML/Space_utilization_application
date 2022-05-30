@@ -23,8 +23,8 @@ credentials_pd = service_account.Credentials.from_service_account_file('creds.js
 
 
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    endpoint ='https://spaceutilizationv4-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
-    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app'
+    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname'+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app' 
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
