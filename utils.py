@@ -66,21 +66,30 @@ def get_bucket_file_names():
 
 # Function to check video in 'results'
 def check_video_name(name):
-    result = False
+    result = {}
     for blob in client.list_blobs(app.config['BUCKET_NAME'],prefix='results/'):
-        if blob.name.split('/')[-1] == name:
-            result = True
+        # if blob.name.split('/')[-1] == name:
+        #     result = True
+        #result = [n in blob.name.split('/')[-1] for n in name]
+        result = {n:r for (n,r) in zip((n for n in name), (n in blob.name.split('/')[-1] for n in name))}
     return result
 
 # Funtion to return urls of multiple videos
 def get_videos(video_name):
+    #url = []
     storage_client = storage.Client.from_service_account_json('creds.json')
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blob = [bucket.blob('results/'+name.strip()+'.mp4') for name in video_name.split(',')]
+    blob = [bucket.blob('results/'+ name.lstrip('[').rstrip(']').strip('"')) for name in video_name.split(',')]
     url = [b.generate_signed_url(
         expiration=datetime.timedelta(minutes=15),
         method='GET'
         ) for b in blob]
+    # for name in video_name:
+    #     blob = bucket.blob('results/'+ name)
+    #     url.append(blob.generate_signed_url(
+    #         expiration=datetime.timedelta(minutes=15),
+    #         method='GET'
+    #         )) 
     return url
 
 

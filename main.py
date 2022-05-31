@@ -5,11 +5,11 @@ from app import app
 app = Flask(__name__)
 import cv2
 from flask_cors import CORS
+import json
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq
-                  roi_cordinates, big_query_test, read_file_from_bucket, check_video_name, \
-                  get_videos
+                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq,\
+                  read_file_from_bucket, check_video_name, get_videos
 
 v_results = []
 #for backend
@@ -87,23 +87,24 @@ def check_video():
             response_dict['message'] = 'Null Video Name'
             return jsonify(response_dict)
         else:
-            result = check_video_name(video_name)
-            if result:
-                response_dict['data'] = True
-                response_dict['message'] = 'File available'
-            else:
-                response_dict['data'] = False
-                response_dict['message'] = 'File not available'
+            response_dict['data'] = check_video_name(video_name)
+            
     return jsonify(response_dict)
+    #return result
 
 
 # API to display result videos
-@app.route('/play_videos',methods = ['GET'])
+@app.route('/play_videos/',methods = ['GET'])
 def play_videos():
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
-        v_name = request.args.get('v_name')  
-        response_dict['data'] = [get_videos((v_name))]
+        v_name = request.args.get('v_name')
+
+        if not v_name:
+            response_dict['status'] = False
+
+        else:
+            response_dict['data'] = get_videos(v_name)
         return jsonify(response_dict)
 
 
