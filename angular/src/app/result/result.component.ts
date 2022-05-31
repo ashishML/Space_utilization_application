@@ -8,14 +8,18 @@ import { ApiService } from '../api.service';
 })
 export class ResultComponent implements OnInit {
 
-  constructor(private api: ApiService) { }
+  constructor(private service: ApiService) { }
   getFrame :any
 
+
   ngOnInit(): void {
-    this.api.getVideos().subscribe(res => {
-      console.log(res);
-      
+    this.service.UploadedVideosName.subscribe(res => { 
+      this.service.getVideos(res).subscribe((resp:any) => {
+        console.log(resp.data);
+        this.getFrame = resp.data;
+      })
     })
+    
   }
 
 }
