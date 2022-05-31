@@ -1,30 +1,26 @@
 <div class="container">
     <div class="row ">
-        <div class="col-8 mx-auto">
-            <div class="card shadow border-0 mt-5 p-3">
-                <div class="card-body border-secondary text-center " style="border-style: dashed;" *ngFor="let item of getFrame">
-                    <!-- <img src="../../assets/upload.svg" alt="" >
-                     -->
-                     <video controls width="250">
-                    
-                        <source [src]=item type="video/mp4">
-                    
-                        Sorry, your browser doesn't support embedded videos.
+        <div class="col-6 mx-auto" *ngFor="let item of getFrame">
+            <div class="card shadow border-0 mt-5 " >
+                <div class="card-body p-0">
+                    <video controls class="w-100">
+                        <source src="https://storage.googleapis.com/space_utilization_application/results/Video1.mp4?Expires=1654905914&GoogleAccessId=space-utilization-storage-key%40springml-gcp-internal-projects.iam.gserviceaccount.com&Signature=qLLLuQSew%2FnPLmQHOK%2BwLmLTxmX37%2BPOO9sxiD4ric3k3ypZAhoMlrJRFlwGHxIBE3blUP0E1xsjs5425EJjlgtj4qstM%2F7V8sLd6YxSi77Vy68cusO7RQznJPps5hQwnmLCK7XX3JY%2FtjdJJXYgpcV7xKhvAkYZi8GTgj6COaRFg7DUVm%2F0nK9AIF1ET8JvXS022YzZGq4OaaHozdjOakY63qRKpxs%2B7ZKrybRtHC0FCWKDCdg7HU1Syh3VJShLTlfD6KRpsJVTjn9D8fc8DRQ286thUm5ZGWoEkuNbNVOZmgADO0pZWR%2Ftx02tIt0DEMhpb9lU63ykQZFeXiEVjQ%3D%3D" 
+                        type="video/mp4">
+                        <P>The video can't be played on this browser.</P>
                     </video>
                 </div>
             </div>
+            <div class="col-md-10 mx-auto mt-3">
+                <ul class="list-group rounded-0 bg-white">
+                    <li class="list-group-item">Video Name: <span class="float-end fw-bolder">10</span></li>
+                    <li class="list-group-item">Count: <span class="float-end fw-bolder">10-12-2021</span></li>
+                </ul>
+            </div>
         </div>
     </div>
-    <div class="row mt-4 justify-content-center">
-        <div class="col-md-4">
-            <ul class="list-group rounded-0 bg-white">
-                <li class="list-group-item">Count: <span class="float-end fw-bolder">10</span></li>
-                <li class="list-group-item">Date: <span class="float-end fw-bolder">10-12-2021</span></li>
-                <li class="list-group-item">Length: <span class="float-end fw-bolder">1 min</span></li>
-              </ul>
-        </div>
-        <div class="col-md-4 ">
-            <button class="btn nextBtn float-end"routerLink="../upload">UPLOAD A NEW VIDEO <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+    <div class="row mt-5">
+        <div class="col-md-12 text-center">
+            <button class="btn nextBtn "routerLink="../upload">UPLOAD A NEW VIDEO <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
         </div>
     </div>
 </div>

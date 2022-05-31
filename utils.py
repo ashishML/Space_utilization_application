@@ -76,18 +76,20 @@ def check_video_name(name):
 
 # Funtion to return urls of multiple videos
 def get_videos(video_name):
+    #url = []
     storage_client = storage.Client.from_service_account_json('creds.json')
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    # blob = [bucket.blob('results/'+name.strip()) for name in video_name]
-    # url = [b.generate_signed_url(
-    #     expiration=datetime.timedelta(minutes=15),
-    #     method='GET'
-    #     ) for b in blob]
-    blob = bucket.blob('results/'+ video_name.strip())
-    url = blob.generate_signed_url(
+    blob = [bucket.blob('results/'+ name.lstrip('[').rstrip(']').strip('"')) for name in video_name.split(',')]
+    url = [b.generate_signed_url(
         expiration=datetime.timedelta(minutes=15),
         method='GET'
-        )
+        ) for b in blob]
+    # for name in video_name:
+    #     blob = bucket.blob('results/'+ name)
+    #     url.append(blob.generate_signed_url(
+    #         expiration=datetime.timedelta(minutes=15),
+    #         method='GET'
+    #         )) 
     return url
 
 

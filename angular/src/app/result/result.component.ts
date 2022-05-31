@@ -11,10 +11,9 @@ export class ResultComponent implements OnInit {
   constructor(private service: ApiService) { }
   getFrame :any
 
-
   ngOnInit(): void {
-    this.service.UploadedVideosName.subscribe(res => { 
-      this.service.getVideos(res).subscribe((resp:any) => {
+    this.service.UploadedVideosName.subscribe(res => {       
+      this.service.getVideos(['video1.mp4','video2.mp4']).subscribe((resp:any) => {
         console.log(resp.data);
         this.getFrame = resp.data;
       })
