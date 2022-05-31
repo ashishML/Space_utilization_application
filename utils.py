@@ -12,6 +12,7 @@ import pandas as pd
 import pandas_gbq
 from google.oauth2 import service_account
 import pandas_gbq
+import json
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
@@ -24,17 +25,6 @@ credentials_pd = service_account.Credentials.from_service_account_file('creds.js
 
 
 
-def make_authorized_get_request(v_name,room,cameraid,roi):
-    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4'+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
-    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app' 
-    print(endpoint,'endpoint..')
-    req = urllib.request.Request(endpoint)
-    auth_req = google.auth.transport.requests.Request()
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
-    req.add_header("Authorization", f"Bearer {id_token}")
-    response = urllib.request.urlopen(req)
-    print(response.read())
-    return response.read()
 
 
 def upload_file_to_bucket(file):
@@ -122,8 +112,22 @@ def read_image_from_bucket(names):
         b = b64encode(data).decode("utf-8")
     return b
 
-def save_cordinates_to_bq(roi):
+def make_authorized_get_request(v_name,room,cameraid,roi):
     
+    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4'+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app' 
+    req = urllib.request.Request(endpoint)
+    auth_req = google.auth.transport.requests.Request()
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
+    req.add_header("Authorization", f"Bearer {id_token}")
+    response = urllib.request.urlopen(req)
+    data = json.loads(response.read().decode('utf-8'))
+    return data
+    
+    
+
+
+def save_cordinates_to_bq(roi):
     temp_df = pd.DataFrame(roi)
     temp_df['x'] = temp_df['x'].astype(int)
     temp_df['y'] = temp_df['y'].astype(int)
@@ -137,12 +141,11 @@ def save_cordinates_to_bq(roi):
     temp_df['Room'] = 'RoomA'
     temp_df.columns = ['Camera_ID','Video_Nmae','ROI','Room']
     temp_df_2  = temp_df[['Room','Camera_ID','ROI']]
-    #pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
-    print(temp_df)
+    pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
     result= []
     
     for index, row in temp_df.iterrows():
-        result.append(make_authorized_get_request(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI'])))#(v_name,room,cameraid,roi)
-        #result.append({"result_video_name": "2022-05-31_14:30:47_Room_0_video2.mp4", "count": 6})
+        response_data = make_authorized_get_request(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI']))
+        result.append(response_data)
     return result
-    
+
