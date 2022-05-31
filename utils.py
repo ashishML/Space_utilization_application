@@ -25,13 +25,15 @@ credentials_pd = service_account.Credentials.from_service_account_file('creds.js
 
 
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname'+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4'+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
     audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app' 
+    print(endpoint,'endpoint..')
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
     req.add_header("Authorization", f"Bearer {id_token}")
     response = urllib.request.urlopen(req)
+    print(response.read())
     return response.read()
 
 
@@ -76,11 +78,16 @@ def check_video_name(name):
 def get_videos(video_name):
     storage_client = storage.Client.from_service_account_json('creds.json')
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blob = [bucket.blob('results/'+name.strip()+'.mp4') for name in video_name.split(',')]
-    url = [b.generate_signed_url(
+    # blob = [bucket.blob('results/'+name.strip()) for name in video_name]
+    # url = [b.generate_signed_url(
+    #     expiration=datetime.timedelta(minutes=15),
+    #     method='GET'
+    #     ) for b in blob]
+    blob = bucket.blob('results/'+ video_name.strip())
+    url = blob.generate_signed_url(
         expiration=datetime.timedelta(minutes=15),
         method='GET'
-        ) for b in blob]
+        )
     return url
 
 
@@ -116,24 +123,26 @@ def read_image_from_bucket(names):
     return b
 
 def save_cordinates_to_bq(roi):
-    try:
-        temp_df = pd.DataFrame(roi)
-        temp_df['x'] = temp_df['x'].astype(int)
-        temp_df['y'] = temp_df['y'].astype(int)
-        temp_df['x'] = temp_df['x'].astype(str)
-        temp_df['y'] = temp_df['y'].astype(str)
-        temp_df['ROI'] = '(' + temp_df['x'] + ',' +temp_df['y'] + ')'
-        temp_df = temp_df.groupby('id').agg(lambda ROI: ','.join(ROI)).reset_index()
-        temp_df['id'] = temp_df['id'].astype(str)
-        temp_df['ROI'] = '[' + temp_df['ROI'] + ']'
-        temp_df['Room'] = 'RoomA'
-        temp_df_2 = temp_df[['Room','id','ROI']]
-        temp_df_2.columns = ['Room','Camera_ID','ROI']
-        temp_df_2.to_dict()
-        pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
-        for index, row in temp_df_2.iterrows():
-            print(row['Camera_ID'], row['ROI'],row['Room'])
-            make_authorized_get_request('name','room',str(row['Camera_ID']),str(row['ROI']))#(v_name,room,cameraid,roi)
-        return True
-    except:
-        return False
+    
+    temp_df = pd.DataFrame(roi)
+    temp_df['x'] = temp_df['x'].astype(int)
+    temp_df['y'] = temp_df['y'].astype(int)
+    temp_df['x'] = temp_df['x'].astype(str)
+    temp_df['y'] = temp_df['y'].astype(str)
+    temp_df['ROI'] = '(' + temp_df['x'] + ',' +temp_df['y'] + ')'
+    temp_df = temp_df.groupby(['id','v_name']).agg(lambda ROI: ','.join(ROI)).reset_index()
+    temp_df['id'] = temp_df['id'].astype(str)
+    temp_df['ROI'] = '[' + temp_df['ROI'] + ']'
+    temp_df = temp_df[['id','v_name','ROI']]
+    temp_df['Room'] = 'RoomA'
+    temp_df.columns = ['Camera_ID','Video_Nmae','ROI','Room']
+    temp_df_2  = temp_df[['Room','Camera_ID','ROI']]
+    #pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
+    print(temp_df)
+    result= []
+    
+    for index, row in temp_df.iterrows():
+        result.append(make_authorized_get_request(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI'])))#(v_name,room,cameraid,roi)
+        #result.append({"result_video_name": "2022-05-31_14:30:47_Room_0_video2.mp4", "count": 6})
+    return result
+    
