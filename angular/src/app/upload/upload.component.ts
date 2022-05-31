@@ -50,10 +50,12 @@ export class UploadComponent implements OnInit {
     if (this.fileName.length > 0) {
       this.loading = true;
       this.service.uploadVideo(this.formData).subscribe({
-        next: (res:any) => {         
-          this.service.UploadedVideosName.next(this.fileName)
+        next: (res:any) => {            
+          this.service.getNames(this.fileName).subscribe(res => {
+            this.service.UploadedVideosName.next(this.fileName)
             this.loading = false;
             this.router.navigate(['../annotate']);
+          })
         },
         error: (error:any) => {
           this.toastr.error('Please try again', 'Unable to send');

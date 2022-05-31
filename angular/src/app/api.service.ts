@@ -12,6 +12,13 @@ export class ApiService {
   API_ENDPOINT = environment.BASE_URL;
 
   UploadedVideosName = new BehaviorSubject([])
+<<<<<<< HEAD
+=======
+
+  uploadVideo(payload:any){
+    return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
+  }
+>>>>>>> 54f09708a403c3d0f830f3e376fdf5a83c3e06a6
 
   uploadVideo(payload:any){
     return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
