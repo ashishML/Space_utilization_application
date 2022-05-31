@@ -9,7 +9,9 @@ import json
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
                   read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq,\
-                  read_file_from_bucket, check_video_name, get_videos
+                  read_file_from_bucket, check_video_name, \
+                  get_videos
+
 
 v_results = []
 #for backend
@@ -36,12 +38,15 @@ v_results = []
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
-    #roi = [{"x":102,"y":103,"id":0,"v_name":"video-01"},{"x":345,"y":567,"id":1,"v_name":"video-02"},{"x":349,"y":569,"id":0,"v_name":"video-02"}]
+    #roi = [{"x":102,"y":103,"id":0,"v_name":"video1"},{"x":349,"y":569,"id":0,"v_name":"video1"}]
     
     if request.method == 'POST':
-        if not save_cordinates_to_bq(eval(request.json['roi'])):
+        data = save_cordinates_to_bq(eval(request.json['roi']))#
+        if not data:
             response_dict['status'] = False
             response_dict['message'] = 'data not saved!'
+        else:
+            response_dict['data'] = data
     return jsonify(response_dict)
 
 
@@ -49,16 +54,14 @@ def save_cordinates():
 def video_upload():
     response_dict={"status": True, "message": "video saved successfully",'data':{}}
     if request.method == 'POST':
-        video_file = request.files.getlist('file')
+        video_file = request.files
         if not video_file:
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
-        for video in video_file:
-            upload_file_to_bucket(video)
-            if video.filename.split('.')[0] == '':
-                continue
-            v_results.append(video.filename.split('.')[0])
+        for video in range(len(video_file)):
+            upload_file_to_bucket(request.files[str(video)])
+            v_results.append(video_file.get(str(video)).filename.split('.')[0])
         return jsonify(response_dict)
 
 
