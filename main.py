@@ -37,12 +37,15 @@ v_results = []
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
-    #roi = [{"x":102,"y":103,"id":0,"v_name":"video-01"},{"x":345,"y":567,"id":1,"v_name":"video-02"},{"x":349,"y":569,"id":0,"v_name":"video-02"}]
+    #roi = [{"x":102,"y":103,"id":0,"v_name":"video1"},{"x":349,"y":569,"id":0,"v_name":"video1"}]
     
     if request.method == 'POST':
-        if not save_cordinates_to_bq(eval(request.json['roi'])):
+        data = save_cordinates_to_bq(eval(request.json['roi']))#
+        if not data:
             response_dict['status'] = False
             response_dict['message'] = 'data not saved!'
+        else:
+            response_dict['data'] = data
     return jsonify(response_dict)
 
 
