@@ -30,7 +30,6 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.loadingAnimate = true;
     this.service.getFrames().subscribe({
       next: (res: any) => {
-        // console.log(res)
         this.loadingAnimate = false;
         this.imagePath = [];
         const base64Image: any = [];
@@ -39,7 +38,6 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
           base64Image.push(`data:image/jpeg;base64,${element}`)
         });
         base64Image.forEach(async (elements: any) => {
-          // console.log(elements);
           let img = new Image();
           img.src = elements
           await img.decode();
@@ -57,11 +55,11 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
     this.canvasid.forEach((element: any) => {
       const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
       this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
-      let img_width = this.image_dimensions[+element.nativeElement.id].img.width;
-      let img_height = this.image_dimensions[+element.nativeElement.id].img.height;
+      let img_width = this.image_dimensions[+element.nativeElement.id]?.img.width;
+      let img_height = this.image_dimensions[+element.nativeElement.id]?.img.height;
       ref.width = img_width;
       ref.height = img_height;
-      this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id].img, 0, 0, img_width, img_height);
+      this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id]?.img, 0, 0, img_width, img_height);
       if (this.canvas_img_info.some((i: any) => i.id === +element.nativeElement.id)) {
         return
       } else {
@@ -146,6 +144,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
       next: (res:any) => {
         console.log(res);
         if(res.status){
+          this.service.sendExtractedData.next(res.data)
           this.loading = false;
           this.router.navigate(['../result']);
         }

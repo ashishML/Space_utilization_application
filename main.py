@@ -1,37 +1,27 @@
 from unittest import result
-from flask import Flask,jsonify, request, Response, render_template
+from flask import Flask,Blueprint,send_from_directory,jsonify, request, Response, render_template
 import numpy as np
 from app import app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='angular/dist/angular')
 import cv2
 from flask_cors import CORS
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
-                  upload_image_file_to_bucket, get_image_from_bucket, read_image_from_bucket,\
-                  read_file_from_bucket, make_authorized_get_request, save_cordinates_to_bq,\
-                  read_file_from_bucket, check_video_name, \
-                  get_videos
+                  upload_image_file_to_bucket, read_image_from_bucket, save_cordinates_to_bq,\
+                  check_video_name, get_videos
 
+angular = Blueprint('angular', __name__, template_folder='angular/dist/angular')
+app.register_blueprint(angular)
+
+@app.route('/assets/<path:filename>')
+def custom_static_for_assets(filename):
+    return send_from_directory('angular/dist/angular/assets', filename)
+
+
+@app.route('/<path:filename>')
+def custom_static(filename):
+    return send_from_directory('angular/dist/angular/', filename)
 
 v_results = []
-#for backend
-# @app.route('/upload_video',methods = ['POST','GET'])
-# def video_upload():
-    
-#     response_dict={"status": True, "message": "video saved successfully",'data':{}}
-#     if request.method == 'POST':
-#         video_file = request.files.getlist('file')
-#         if not video_file:
-#             response_dict['status'] = False
-#             response_dict['message'] = 'file not available!'
-#             return jsonify(response_dict)
-#         for video in video_file:
-#             upload_file_to_bucket(video)
-#             if video.filename.split('.')[0] == '':
-#                 continue
-#             v_results.append(video.filename.split('.')[0])
-#         return jsonify(response_dict)
-
-
 
 
 @app.route('/roi_cordinates',methods = ['POST'])
@@ -80,6 +70,7 @@ def list_of_video_names():
             response_dict['message'] = 'files not available!'
         return jsonify(response_dict)
 
+
 # API to check video in 'results'
 @app.route('/check_video',methods = ['POST'])
 def check_video():
@@ -107,14 +98,13 @@ def check_video():
 def play_videos():
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
-        v_name = request.args.get('v_name')  
-        response_dict['data'] = [get_videos((v_name))]
+        v_name = eval(request.args.get('v_name'))
+        response_dict['data'] = get_videos(v_name)
         return jsonify(response_dict)
 
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
-
     global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
@@ -137,38 +127,25 @@ def video_frame_capture():
             response_dict['message'] = 'there is no video files!'
     return jsonify(response_dict)
 
-def region_of_interest(img, vertices):
-    mask = np.zeros_like(img)
-    channel_count = img.shape[2]
-    match_mask_color = (255,) * channel_count
-    cv2.fillPoly(mask, [vertices], match_mask_color)
-    masked_image = cv2.bitwise_and(img, mask)
-    return masked_image
-
-def gen_frames():
-    camera = cv2.VideoCapture(read_file_from_bucket('2022-05-23_15:51:54_Room2_Room2A_VID-20220422-WA0002'))
-    while True:
-        success, frame = camera.read()  # read the camera frame
-        # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        # vertices = np.array([(10, 46), (291, 161), (633, 230), (634, 461), (37, 456), (49, 61), (47, 64)])
-        #cropped_frame = region_of_interest(frame, vertices)
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-@app.route('/live')
-def index():
-    return render_template('index.html')
+#for backend
+# @app.route('/upload_video',methods = ['POST','GET'])
+# def video_upload():
     
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+#     response_dict={"status": True, "message": "video saved successfully",'data':{}}
+#     if request.method == 'POST':
+#         video_file = request.files.getlist('file')
+#         if not video_file:
+#             response_dict['status'] = False
+#             response_dict['message'] = 'file not available!'
+#             return jsonify(response_dict)
+#         for video in video_file:
+#             upload_file_to_bucket(video)
+#             if video.filename.split('.')[0] == '':
+#                 continue
+#             v_results.append(video.filename.split('.')[0])
+#         return jsonify(response_dict)
 
 
 
