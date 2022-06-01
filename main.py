@@ -103,17 +103,13 @@ def check_video():
 
 
 # API to display result videos
-@app.route('/play_videos/',methods = ['GET'])
+@app.route('/play_videos',methods = ['GET'])
 def play_videos():
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
-        v_name = request.args.get('v_name')
-
-        if not v_name:
-            response_dict['status'] = False
-
-        else:
-            response_dict['data'] = get_videos(v_name)
+        v_name = eval(request.args.get('v_name'))
+        print(v_name)
+        response_dict['data'] = get_videos(v_name)
         return jsonify(response_dict)
 
 

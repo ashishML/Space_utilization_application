@@ -66,21 +66,18 @@ def check_video_name(name):
 
 # Funtion to return urls of multiple videos
 def get_videos(video_name):
-    #url = []
     storage_client = storage.Client.from_service_account_json('creds.json')
     bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
-    blob = [bucket.blob('results/'+ name.lstrip('[').rstrip(']').strip('"')) for name in video_name.split(',')]
-    url = [b.generate_signed_url(
-        expiration=datetime.timedelta(minutes=15),
-        method='GET'
-        ) for b in blob]
-    # for name in video_name:
-    #     blob = bucket.blob('results/'+ name)
-    #     url.append(blob.generate_signed_url(
-    #         expiration=datetime.timedelta(minutes=15),
-    #         method='GET'
-    #         )) 
-    return url
+    result = []
+    for v_name in video_name:
+        blob = bucket.blob('results/'+ v_name)
+
+        url = blob.generate_signed_url(
+            expiration=datetime.timedelta(minutes=15000),
+            method='GET'
+            )
+        result.append(url)  
+    return result
 
 
 def read_file_to_bucket(video_name):
@@ -116,8 +113,8 @@ def read_image_from_bucket(names):
 
 def make_authorized_get_request(v_name,room,cameraid,roi):
     
-    endpoint ='https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4'+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
-    audience = 'https://spaceutilizationv5-6xbmpiqwia-uc.a.run.app' 
+    endpoint ='https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    audience = 'https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app'
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)

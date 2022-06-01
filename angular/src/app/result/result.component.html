@@ -4,18 +4,20 @@
             <div class="card shadow border-0 mt-5 " >
                 <div class="card-body p-0">
                     <video controls class="w-100">
-                        <source src="https://storage.googleapis.com/space_utilization_application/results/Video1.mp4?Expires=1654905914&GoogleAccessId=space-utilization-storage-key%40springml-gcp-internal-projects.iam.gserviceaccount.com&Signature=qLLLuQSew%2FnPLmQHOK%2BwLmLTxmX37%2BPOO9sxiD4ric3k3ypZAhoMlrJRFlwGHxIBE3blUP0E1xsjs5425EJjlgtj4qstM%2F7V8sLd6YxSi77Vy68cusO7RQznJPps5hQwnmLCK7XX3JY%2FtjdJJXYgpcV7xKhvAkYZi8GTgj6COaRFg7DUVm%2F0nK9AIF1ET8JvXS022YzZGq4OaaHozdjOakY63qRKpxs%2B7ZKrybRtHC0FCWKDCdg7HU1Syh3VJShLTlfD6KRpsJVTjn9D8fc8DRQ286thUm5ZGWoEkuNbNVOZmgADO0pZWR%2Ftx02tIt0DEMhpb9lU63ykQZFeXiEVjQ%3D%3D" 
+                        <source src="{{item}}" 
                         type="video/mp4">
                         <P>The video can't be played on this browser.</P>
                     </video>
                 </div>
             </div>
-            <div class="col-md-10 mx-auto mt-3">
-                <ul class="list-group rounded-0 bg-white">
-                    <li class="list-group-item">Video Name: <span class="float-end fw-bolder">10</span></li>
-                    <li class="list-group-item">Count: <span class="float-end fw-bolder">10-12-2021</span></li>
-                </ul>
-            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 mx-auto mt-3" *ngFor="let item of getFrameData">
+            <ul class="list-group rounded-0 bg-white shadow list-group-flush">
+                <li class="list-group-item">Video Name: <span class="float-end fw-bolder">{{item.result_video_name}}</span></li>
+                <li class="list-group-item">Count: <span class="float-end fw-bolder">{{item.count}}</span></li>
+            </ul>
         </div>
     </div>
     <div class="row mt-5">
