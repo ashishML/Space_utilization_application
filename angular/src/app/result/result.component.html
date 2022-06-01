@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="row ">
+        <div class="col-6 mx-auto" *ngFor="let item of getFrame">
+            <div class="card shadow border-0 mt-5 " >
+                <div class="card-body p-0">
+                    <video controls class="w-100">
+                        <source src="{{item}}" 
+                        type="video/mp4">
+                        <P>The video can't be played on this browser.</P>
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 mx-auto mt-3" *ngFor="let item of getFrameData">
+            <ul class="list-group rounded-0 bg-white shadow list-group-flush">
+                <li class="list-group-item">Video Name: <span class="float-end fw-bolder">{{item.result_video_name}}</span></li>
+                <li class="list-group-item">Count: <span class="float-end fw-bolder">{{item.count}}</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-12 text-center">
+            <button class="btn nextBtn "routerLink="../upload">UPLOAD A NEW VIDEO <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+        </div>
+    </div>
+</div>

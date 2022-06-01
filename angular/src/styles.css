@@ -1,0 +1,21 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~ngx-toastr/toastr';
+html, body{
+    font-family: 'Source Sans Pro', sans-serif !important;
+    background-color: #F6F9FB !important;
+}
+.btn:focus{
+    box-shadow: none !important;
+}
+.nextBtn{
+    background: linear-gradient(261.47deg, #FF31C5 -2.13%, #5E1F93 100%);
+    border-radius: 4px;
+    color: white !important;
+    padding: 10px 25px !important;
+}
+.prevBtn{
+    border: 1px solid #C11B79 !important;
+    border-radius: 4px;
+    color: #C11B79 !important;
+    padding: 10px 25px !important;
+}

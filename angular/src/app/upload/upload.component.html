@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="row ">
+        <div class="col-8 mx-auto">
+            <div class="card shadow border-0 mt-5 p-3">
+                <div class="card-body border-secondary text-center" style="border-style: dashed;" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" >
+                    <img src="../../assets/upload.svg" alt="" class="my-3">
+                    <h5>Drag & drop</h5>
+                    <div>OR</div>
+                    <button class="btn btn-link" (click)="fileUpload.click()">Upload Videos</button>
+                    <input type="file" multiple accept=" video/*" style="display: none" #fileUpload  (change)="uploadFile($event)">
+                    <small class="d-flex justify-content-center mt-3" *ngFor="let item of fileName">
+                        <span  class="material-symbols-outlined me-2">videocam </span> {{item}}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <button class="btn nextBtn" *ngIf="!loading" (click)="submitVideo()">NEXT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
+            <button class="btn nextBtn" disabled *ngIf="loading">
+                Loading...
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+</div>
