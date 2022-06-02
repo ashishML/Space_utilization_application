@@ -3,7 +3,7 @@
         <div class="col-6" *ngFor="let item of imagePath; index as i">
             <div class="card shadow border-0 mt-5" >
                 <div class="card-header bg-dark text-white d-flex justify-content-between">
-                    <small>Image {{i+1}}</small>
+                    <small>Video Frame {{i+1}}</small>
                     <span class="material-symbols-outlined fs-6" role="button" (click)="clearCanvas(i)" data-bs-toggle="tooltip"  title="Redraw">replay</span>
                 </div>
                 <div class="card-body p-0 text-center"  [ngClass]="{'placeholder-wave placeholder' : loadingAnimate}" [style.height]="loadingAnimate ? '50vh' : null" >
@@ -17,7 +17,7 @@
             <button class="btn prevBtn me-3" routerLink="../upload"><span class="material-symbols-outlined align-bottom me-4">undo</span>REUPLOAD ANOTHER VIDEO </button>
             <button class="btn nextBtn ms-3" *ngIf="!loading" (click)="submit()">SUBMIT <span class="material-symbols-outlined ms-4 align-bottom">arrow_right_alt</span></button>
             <button class="btn nextBtn ms-3" disabled *ngIf="loading">
-                Submitting... 
+                Processing Video... 
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </button>
         </div>
