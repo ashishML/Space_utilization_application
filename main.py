@@ -133,7 +133,8 @@ def video_frame_capture():
             response_dict['data'] = result
             v_results=[]
             return jsonify(response_dict)
-        except:
+        except Exception as e:
+            print(e)
             response_dict['status'] = False
             response_dict['message'] = 'there is no video files!'
     return jsonify(response_dict)

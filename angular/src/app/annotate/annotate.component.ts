@@ -25,28 +25,33 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
   fileName = [];
 
   ngOnInit(): void {
-    this.service.UploadedVideosName.subscribe(res => this.fileName = res)
-    this.imagePath = [...this.fileName];
-    this.loadingAnimate = true;
-    this.service.getFrames().subscribe({
-      next: (res: any) => {
-        this.loadingAnimate = false;
-        this.imagePath = [];
-        const base64Image: any = [];
-        res['data'].forEach((element: any) => {
-          this.imagePath.push(this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${element}`))
-          base64Image.push(`data:image/jpeg;base64,${element}`)
-        });
-        base64Image.forEach(async (elements: any) => {
-          let img = new Image();
-          img.src = elements
-          await img.decode();
-          this.image_dimensions.push({ img: img, width: img.width, height: img.height })
-          this.ngAfterViewInit()
-        });
-      },
-      error: err => this.loadingAnimate = false
-    });
+    this.service.UploadedVideosName.subscribe(res => {
+      console.log(res, 'uploaded video name');
+      this.fileName = res
+      this.imagePath = [...this.fileName];
+      this.loadingAnimate = true;
+      this.service.getFrames().subscribe({
+        next: (res: any) => {
+          console.log(res, 'get frames');
+          this.loadingAnimate = false;
+          this.imagePath = [];
+          const base64Image: any = [];
+          res['data'].forEach((element: any) => {
+            this.imagePath.push(this.sanitizer.bypassSecurityTrustUrl(`data:image/jpeg;base64,${element}`))
+            base64Image.push(`data:image/jpeg;base64,${element}`)
+          });
+          base64Image.forEach(async (elements: any) => {
+            let img = new Image();
+            img.src = elements
+            await img.decode();
+            this.image_dimensions.push({ img: img, width: img.width, height: img.height })
+            this.ngAfterViewInit()
+          });
+        },
+        error: err => this.loadingAnimate = false
+      });
+    })
+    
   }
 
 
