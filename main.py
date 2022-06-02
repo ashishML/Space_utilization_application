@@ -5,6 +5,7 @@ from app import app
 app = Flask(__name__, static_folder='angular/dist/angular')
 import cv2
 from flask_cors import CORS
+
 from utils import upload_file_to_bucket, get_bucket_file_names, read_file_to_bucket,\
                   upload_image_file_to_bucket, read_image_from_bucket, save_cordinates_to_bq,\
                   check_video_name, get_videos

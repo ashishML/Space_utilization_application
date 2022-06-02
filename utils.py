@@ -8,7 +8,9 @@ import google.oauth2.id_token
 import pandas as pd
 import pandas_gbq
 import json
-
+import requests
+from google.auth import compute_engine
+from google.auth.transport import requests
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 # os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 
@@ -74,11 +76,30 @@ def get_videos(video_name):
         result.append(url)  
     return result
 
+def generate_download_signed_url_v4(blob):
+    auth_request = requests.Request()
+    signing_credentials = compute_engine.IDTokenCredentials(auth_request, "")
+    print(signing_credentials)
+    # storage_client = storage.Client()
+    # bucket = storage_client.bucket(app.config['BUCKET_NAME'])
+    # blob = bucket.blob('videos/'+blob_name)
+    url = blob.generate_signed_url(
+        version="v4",
+        credentials=signing_credentials,
+        # This URL is valid for 30 minutes
+        expiration=datetime.timedelta(seconds=300),
+        # Allow GET requests using this URL.
+        method="GET",
+    )
+    print(url)
+    return url
 
 def read_file_to_bucket(video_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob('videos/'+video_name)
+    print(blob)
+    return generate_download_signed_url_v4(blob) 
     url = blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
     return url
 
@@ -94,6 +115,7 @@ def upload_image_file_to_bucket(img_str,names):
 def get_image_from_bucket(names):  
     bucket = client.bucket('my-bucket')
     blob = bucket.blob('first_frame/'+names+'.png')
+    return generate_download_signed_url_v4(blob) 
     serving_url = blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
     return serving_url
 
