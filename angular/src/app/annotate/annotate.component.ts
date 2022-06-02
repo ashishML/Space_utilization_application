@@ -30,7 +30,7 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
       this.fileName = res
       this.imagePath = [...this.fileName];
       this.loadingAnimate = true;
-      this.service.getFrames().subscribe({
+      this.service.getFrames(JSON.stringify(this.fileName)).subscribe({
         next: (res: any) => {
           console.log(res, 'get frames');
           this.loadingAnimate = false;

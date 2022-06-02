@@ -29,7 +29,7 @@ def not_found_error(error):
 def unauthorize_error(error):
     return render_template('index.html')
 
-v_results = []
+# v_results = []
 
 @app.route('/')
 def index():
@@ -62,6 +62,7 @@ def video_upload():
             response_dict['status'] = False
             response_dict['message'] = 'file not available!'
             return jsonify(response_dict)
+        v_results = []
         for video in range(len(video_file)):
             upload_file_to_bucket(request.files[str(video)])
             v_results.append(video_file.get(str(video)).filename.split('.')[0])
@@ -116,12 +117,13 @@ def play_videos():
 
 @app.route('/get_frame',methods = ['GET'])
 def video_frame_capture():
-    global v_results
+    # global v_results
     response_dict={"status": True, "message": "",'data':{}}
     if request.method == 'GET':
         try:
             result = []
-            for names in v_results:
+            v_frames = eval(request.args.get('v_frames'))
+            for names in v_frames:
                 video_obj = cv2.VideoCapture(read_file_to_bucket(names))
                 success = 1
                 while success:
@@ -131,7 +133,7 @@ def video_frame_capture():
                     break
                 result.append(read_image_from_bucket(names))
             response_dict['data'] = result
-            v_results=[]
+            v_frames=[]
             return jsonify(response_dict)
         except Exception as e:
             print(e)

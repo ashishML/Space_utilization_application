@@ -78,8 +78,9 @@ def get_videos(video_name):
 def read_file_to_bucket(video_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
-    blob = bucket.blob('videos/'+video_name+'.mp4')
-    return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
+    blob = bucket.blob('videos/'+video_name)
+    url = blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
+    return url
 
 
 def upload_image_file_to_bucket(img_str,names):
