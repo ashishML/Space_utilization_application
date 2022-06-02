@@ -23,7 +23,10 @@ def custom_static(filename):
 
 v_results = []
 
-
+@app.route('/')
+def index():
+    return render_template('index.html')
+    
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}
