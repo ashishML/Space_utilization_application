@@ -1,7 +1,4 @@
-import os
 import datetime
-from tkinter.tix import Tree
-from unittest import result
 from google.cloud import storage
 from app import app
 from base64 import b64encode
@@ -9,8 +6,6 @@ import urllib
 import google.auth.transport.requests
 import google.oauth2.id_token
 import pandas as pd
-import pandas_gbq
-from google.oauth2 import service_account
 import pandas_gbq
 import json
 

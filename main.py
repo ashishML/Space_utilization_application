@@ -21,6 +21,14 @@ def custom_static_for_assets(filename):
 def custom_static(filename):
     return send_from_directory('angular/dist/angular/', filename)
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('index.html')
+
+@app.errorhandler(401)
+def unauthorize_error(error):
+    return render_template('index.html')
+
 v_results = []
 
 @app.route('/')
