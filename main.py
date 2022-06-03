@@ -1,6 +1,4 @@
-from unittest import result
-from flask import Flask,Blueprint,send_from_directory,jsonify, request, Response, render_template
-import numpy as np
+from flask import Flask,Blueprint,send_from_directory,jsonify, request, render_template
 from app import app
 app = Flask(__name__, static_folder='angular/dist/angular')
 import cv2
