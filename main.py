@@ -1,6 +1,4 @@
-from unittest import result
-from flask import Flask,Blueprint,send_from_directory,jsonify, request, Response, render_template
-import numpy as np
+from flask import Flask,Blueprint,send_from_directory,jsonify, request, render_template
 from app import app
 app = Flask(__name__, static_folder='angular/dist/angular')
 import cv2
@@ -23,7 +21,10 @@ def custom_static(filename):
 
 v_results = []
 
-
+@app.route('/')
+def index():
+    return render_template('index.html')
+    
 @app.route('/roi_cordinates',methods = ['POST'])
 def save_cordinates():
     response_dict={"status": True, "message": "data saved.",'data':{}}

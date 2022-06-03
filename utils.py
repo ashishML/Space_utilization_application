@@ -1,7 +1,4 @@
-import os
 import datetime
-from tkinter.tix import Tree
-from unittest import result
 from google.cloud import storage
 from app import app
 from base64 import b64encode
@@ -10,29 +7,21 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 import pandas as pd
 import pandas_gbq
-from google.oauth2 import service_account
 import pandas_gbq
 import json
+import threading
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
-os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
-
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
+# os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 client = storage.Client()
-
-
-credentials_pd = service_account.Credentials.from_service_account_file('creds.json',)
-
-
-
-
-
+# credentials_pd = service_account.Credentials.from_service_account_file('creds.json',)
 
 def upload_file_to_bucket(file):
     name = file.filename
     data = file.read()
     remote_path = 'videos' + "/" + name
-    storage_client = storage.Client.from_service_account_json('creds.json')
-    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    # storage_client = storage.Client.from_service_account_json('creds.json')
+    bucket = client.get_bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob(remote_path)
     blob.upload_from_string(data, content_type = 'video/mp4', timeout=600)
     return 
@@ -40,8 +29,8 @@ def upload_file_to_bucket(file):
 
 
 def read_file_from_bucket(video_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(app.config['BUCKET_NAME'])
+    # storage_client = storage.Client()
+    bucket = client.bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob('results/'+video_name+'.mp4')
     return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
   
@@ -66,8 +55,8 @@ def check_video_name(name):
 
 # Funtion to return urls of multiple videos
 def get_videos(video_name):
-    storage_client = storage.Client.from_service_account_json('creds.json')
-    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    # storage_client = storage.Client.from_service_account_json('creds.json')
+    bucket = client.get_bucket(app.config['BUCKET_NAME'])
     result = []
     for v_name in video_name:
         blob = bucket.blob('results/'+ v_name)
@@ -89,8 +78,8 @@ def read_file_to_bucket(video_name):
 
 def upload_image_file_to_bucket(img_str,names):
     remote_path = 'first_frame' + "/" + names
-    storage_client = storage.Client.from_service_account_json('creds.json')
-    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
+    # storage_client = storage.Client.from_service_account_json('creds.json')
+    bucket = client.get_bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob(remote_path)
     blob.upload_from_string(img_str, content_type = 'image/png', timeout=600)
     return 
@@ -111,8 +100,9 @@ def read_image_from_bucket(names):
         b = b64encode(data).decode("utf-8")
     return b
 
+
+roi_result = []
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    
     endpoint ='https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
     audience = 'https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app'
     req = urllib.request.Request(endpoint)
@@ -121,11 +111,8 @@ def make_authorized_get_request(v_name,room,cameraid,roi):
     req.add_header("Authorization", f"Bearer {id_token}")
     response = urllib.request.urlopen(req)
     data = json.loads(response.read().decode('utf-8'))
-    return data
+    roi_result.append(data)
     
-    
-
-
 def save_cordinates_to_bq(roi):
     temp_df = pd.DataFrame(roi)
     temp_df['x'] = temp_df['x'].astype(int)
@@ -140,11 +127,12 @@ def save_cordinates_to_bq(roi):
     temp_df['Room'] = 'RoomA'
     temp_df.columns = ['Camera_ID','Video_Nmae','ROI','Room']
     temp_df_2  = temp_df[['Room','Camera_ID','ROI']]
-    pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects', credentials=credentials_pd,if_exists='append')
-    result= []
-    
+    pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects',if_exists='append')
+    thread_list = []
     for index, row in temp_df.iterrows():
-        response_data = make_authorized_get_request(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI']))
-        result.append(response_data)
-    return result
-
+        response_data = threading.Thread(target=make_authorized_get_request, args=(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI'])))
+        response_data.start()
+        thread_list.append(response_data)
+    while sum([t.is_alive() for t in thread_list])>0:
+        continue
+    return roi_result
