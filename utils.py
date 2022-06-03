@@ -63,8 +63,8 @@ def check_video_name(name):
 
 # Funtion to return urls of multiple videos
 def get_videos(video_name):
-    # storage_client = storage.Client.from_service_account_json('creds.json')
-    bucket = client.get_bucket(app.config['BUCKET_NAME'])
+    storage_client = storage.Client.from_service_account_json('service_account/creds.json')
+    bucket = storage_client.get_bucket(app.config['BUCKET_NAME'])
     result = []
     for v_name in video_name:
         blob = bucket.blob('results/'+ v_name)
@@ -77,15 +77,15 @@ def get_videos(video_name):
     return result
 
 def generate_download_signed_url_v4(blob):
-    auth_request = requests.Request()
-    signing_credentials = compute_engine.IDTokenCredentials(auth_request, "")
-    print(signing_credentials)
+    # auth_request = requests.Request()
+    # signing_credentials = compute_engine.IDTokenCredentials(auth_request, "")
+    # print(signing_credentials)
     # storage_client = storage.Client()
     # bucket = storage_client.bucket(app.config['BUCKET_NAME'])
     # blob = bucket.blob('videos/'+blob_name)
     url = blob.generate_signed_url(
         version="v4",
-        credentials=signing_credentials,
+        # credentials=signing_credentials,
         # This URL is valid for 30 minutes
         expiration=datetime.timedelta(seconds=300),
         # Allow GET requests using this URL.
@@ -95,7 +95,9 @@ def generate_download_signed_url_v4(blob):
     return url
 
 def read_file_to_bucket(video_name):
-    storage_client = storage.Client()
+    storage_client = storage.Client.from_service_account_json('service_account/creds.json')
+
+    # storage_client = storage.Client()
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob('videos/'+video_name)
     print(blob)
@@ -113,7 +115,9 @@ def upload_image_file_to_bucket(img_str,names):
     return 
 
 def get_image_from_bucket(names):  
-    bucket = client.bucket('my-bucket')
+    storage_client = storage.Client.from_service_account_json('service_account/creds.json')
+
+    bucket = storage_client.bucket('my-bucket')
     blob = bucket.blob('first_frame/'+names+'.png')
     return generate_download_signed_url_v4(blob) 
     serving_url = blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
