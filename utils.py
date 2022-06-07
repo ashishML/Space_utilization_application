@@ -114,6 +114,8 @@ def make_authorized_get_request(v_name,room,cameraid,roi):
     roi_result.append(data)
     
 def save_cordinates_to_bq(roi):
+    global roi_result
+    roi_result=[]
     temp_df = pd.DataFrame(roi)
     temp_df['x'] = temp_df['x'].astype(int)
     temp_df['y'] = temp_df['y'].astype(int)
@@ -135,4 +137,5 @@ def save_cordinates_to_bq(roi):
         thread_list.append(response_data)
     while sum([t.is_alive() for t in thread_list])>0:
         continue
+    thread_list = []
     return roi_result
