@@ -138,4 +138,5 @@ def save_cordinates_to_bq(roi):
         continue
     temp =roi_result
     roi_result =[]
+    
     return temp
