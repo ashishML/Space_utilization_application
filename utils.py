@@ -103,8 +103,8 @@ def read_image_from_bucket(names):
 
 roi_result = []
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    endpoint ='https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
-    audience = 'https://spaceutilizationv8-6xbmpiqwia-uc.a.run.app'
+    endpoint ='https://spaceutilizationv13-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'.mp4'+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    audience = 'https://spaceutilizationv13-6xbmpiqwia-uc.a.run.app'
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, audience)
@@ -114,6 +114,7 @@ def make_authorized_get_request(v_name,room,cameraid,roi):
     roi_result.append(data)
     
 def save_cordinates_to_bq(roi):
+    global roi_result
     temp_df = pd.DataFrame(roi)
     temp_df['x'] = temp_df['x'].astype(int)
     temp_df['y'] = temp_df['y'].astype(int)
@@ -135,4 +136,6 @@ def save_cordinates_to_bq(roi):
         thread_list.append(response_data)
     while sum([t.is_alive() for t in thread_list])>0:
         continue
-    return roi_result
+    temp =roi_result
+    roi_result =[]
+    return temp
