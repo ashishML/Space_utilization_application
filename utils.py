@@ -103,7 +103,7 @@ def read_image_from_bucket(names):
 
 
 def make_authorized_get_request(v_name,room,cameraid,roi):
-    endpoint =' https://spaceutilizationv14-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
+    endpoint ='https://spaceutilizationv14-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
     audience = 'https://spaceutilizationv14-6xbmpiqwia-uc.a.run.app'
     req = urllib.request.Request(endpoint)
     auth_req = google.auth.transport.requests.Request()
