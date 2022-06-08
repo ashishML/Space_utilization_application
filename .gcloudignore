@@ -19,7 +19,6 @@ __pycache__/
 /setup.cfg
 
 *.pyc
-*.json
 /env
 
 /angular/node_modules

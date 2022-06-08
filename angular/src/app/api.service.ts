@@ -18,8 +18,9 @@ export class ApiService {
     return this.http.post(`${this.API_ENDPOINT}/upload_video`, payload)
   }
 
-  getFrames(){
-    return this.http.get(`${this.API_ENDPOINT}/get_frame`)
+  getFrames(payload:any){
+    let params = new HttpParams().set("v_frames", payload);  
+    return this.http.get(`${this.API_ENDPOINT}/get_frame`, {params})
   }
 
   sendCordinates(payload:any){
