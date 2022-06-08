@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { ApiService } from '../api.service';
   templateUrl: './result.component.html',
   styleUrls: ['./result.component.css']
 })
-export class ResultComponent implements OnInit {
+export class ResultComponent implements OnInit, OnDestroy {
 
   constructor(private service: ApiService) { }
   getFrame :any
@@ -26,6 +26,11 @@ export class ResultComponent implements OnInit {
       })
     })
     
+  }
+
+  ngOnDestroy(): void {
+    this.service.UploadedVideosName.next([])
+    this.service.sendExtractedData.next([])
   }
 
 }
