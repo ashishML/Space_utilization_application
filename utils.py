@@ -9,9 +9,9 @@ import pandas as pd
 import pandas_gbq
 import pandas_gbq
 import json
-import threading
+import os
 
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]= 'creds.json'
 # os.environ["GCLOUD_PROJECT"]= "springml-gcp-internal-projects"
 client = storage.Client()
 # credentials_pd = service_account.Credentials.from_service_account_file('creds.json',)

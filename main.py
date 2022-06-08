@@ -19,6 +19,16 @@ def custom_static_for_assets(filename):
 def custom_static(filename):
     return send_from_directory('angular/dist/angular/', filename)
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('index.html')
+
+@app.errorhandler(401)
+def unauthorize_error(error):
+    return render_template('index.html')
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -119,7 +129,8 @@ def video_frame_capture():
                 result.append(read_image_from_bucket(names))
             response_dict['data'] = result
             return jsonify(response_dict)
-        except:
+        except Exception as e:
+            print(str(e))
             response_dict['status'] = False
             response_dict['message'] = 'there is no video files!'
     return jsonify(response_dict)
