@@ -72,7 +72,7 @@ def get_videos(video_name):
 def read_file_to_bucket(video_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(app.config['BUCKET_NAME'])
-    blob = bucket.blob('videos/'+video_name+'.mp4')
+    blob = bucket.blob('videos/'+video_name)
     return blob.generate_signed_url(datetime.timedelta(seconds=300), method='GET')
 
 
@@ -101,7 +101,7 @@ def read_image_from_bucket(names):
     return b
 
 
-roi_result = []
+
 def make_authorized_get_request(v_name,room,cameraid,roi):
     endpoint ='https://spaceutilizationv14-6xbmpiqwia-uc.a.run.app/get_count?vname='+v_name+'&room='+room+'&cameraid='+cameraid+'&roi='+roi
     audience = 'https://spaceutilizationv14-6xbmpiqwia-uc.a.run.app'
@@ -111,10 +111,10 @@ def make_authorized_get_request(v_name,room,cameraid,roi):
     req.add_header("Authorization", f"Bearer {id_token}")
     response = urllib.request.urlopen(req)
     data = json.loads(response.read().decode('utf-8'))
-    roi_result.append(data)
-    
+    return data
+    #roi_result.append(data)
+import concurrent.futures
 def save_cordinates_to_bq(roi):
-    global roi_result
     temp_df = pd.DataFrame(roi)
     temp_df['x'] = temp_df['x'].astype(int)
     temp_df['y'] = temp_df['y'].astype(int)
@@ -129,13 +129,7 @@ def save_cordinates_to_bq(roi):
     temp_df.columns = ['Camera_ID','Video_Nmae','ROI','Room']
     temp_df_2  = temp_df[['Room','Camera_ID','ROI']]
     pandas_gbq.to_gbq(temp_df_2, 'space_utilization.ROI', project_id='springml-gcp-internal-projects',if_exists='append')
-    thread_list = []
-    for index, row in temp_df.iterrows():
-        response_data = threading.Thread(target=make_authorized_get_request, args=(row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI'])))
-        response_data.start()
-        thread_list.append(response_data)
-    while sum([t.is_alive() for t in thread_list])>0:
-        continue
-    temp =roi_result
-    roi_result =[]
-    return temp
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(make_authorized_get_request, row['Video_Nmae'],'Room',str(row['Camera_ID']),str(row['ROI'])) for index, row in temp_df.iterrows()]
+        return_value = [f.result() for f in futures]
+    return return_value
