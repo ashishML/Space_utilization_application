@@ -57,20 +57,22 @@ export class AnnotateComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.canvasid = this.multicanvas.toArray()
-    this.canvasid.forEach((element: any) => {
-      const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
-      this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
-      let img_width = this.image_dimensions[+element.nativeElement.id]?.img.width;
-      let img_height = this.image_dimensions[+element.nativeElement.id]?.img.height;
-      ref.width = img_width;
-      ref.height = img_height;
-      this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id]?.img, 0, 0, img_width, img_height);
-      if (this.canvas_img_info.some((i: any) => i.id === +element.nativeElement.id)) {
-        return
-      } else {
-        this.canvas_img_info.push({ ctx: this.ctx, img_info: this.image_dimensions[+element.nativeElement.id], img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
-      }
-    });
+    if(this.image_dimensions.length!=0){
+      this.canvasid.forEach((element: any) => {
+        const ref = document.getElementById(element.nativeElement.id) as HTMLCanvasElement
+        this.ctx = ref.getContext('2d') as unknown as CanvasRenderingContext2D;
+        let img_width = this.image_dimensions[+element.nativeElement.id]?.img.width;
+        let img_height = this.image_dimensions[+element.nativeElement.id]?.img.height;
+        ref.width = img_width;
+        ref.height = img_height;
+        this.ctx.drawImage(this.image_dimensions[+element.nativeElement.id]?.img, 0, 0, img_width, img_height);
+        if (this.canvas_img_info.some((i: any) => i.id === +element.nativeElement.id)) {
+          return
+        } else {
+          this.canvas_img_info.push({ ctx: this.ctx, img_info: this.image_dimensions[+element.nativeElement.id], img_width: img_width, img_height: img_height, id: +element.nativeElement.id, cordinates: [] })
+        }
+      });
+    }
   }
 
   //different approach
