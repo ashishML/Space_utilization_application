@@ -23,7 +23,7 @@ def upload_file_to_bucket(file):
     # storage_client = storage.Client.from_service_account_json('creds.json')
     bucket = client.get_bucket(app.config['BUCKET_NAME'])
     blob = bucket.blob(remote_path)
-    blob.upload_from_string(data, content_type = 'video/mp4', timeout=600)
+    blob.upload_from_string(data, content_type = 'video/mp4')
     return 
 
 
